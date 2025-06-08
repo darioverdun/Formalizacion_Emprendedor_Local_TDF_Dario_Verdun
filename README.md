@@ -10,7 +10,7 @@ Desarrollo de Sistemas de Inteligencia Artificial
 ---
 
 ## Título del dominio  
-Asistencia a la formalización fiscal y tributaria de emprendedores
+Formalización del emprendedor local en Tierra del Fuego
 
 ---
 
@@ -88,6 +88,7 @@ ENTONCES advertir sobre posibles incompatibilidades
 - Jurisdicción fiscal (local o multilateral)
 - Situación laboral y condición social
 - Actividades de importación/exportación
+- Ente otros
 
 ---
 
