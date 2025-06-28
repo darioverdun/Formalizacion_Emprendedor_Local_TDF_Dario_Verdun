@@ -1,0 +1,260 @@
+DESARROLLO DE SISTEMA DE INTELIGENCIA ARTIFICIAL 
+2° AÑO 
+Clase Nº 3: Representación del Conocimiento y Sistemas 
+Expertos (I) 
+Contenido: Sistemas Expertos: Definición, arquitectura, componentes principales, 
+aplicaciones, ventajas y limitaciones. 
+En la clase de hoy trabajaremos los siguientes temas: 
+¿Qué es un sistema experto? 
+Ventajas de los sistemas expertos 
+Conceptos generales de los sistemas expertos 
+El desarrollo de la tecnología de sistemas expertos 
+Lenguajes, shells y herramientas 
+Elementos de un sistema experto 
+Sistemas de Producción 
+Paradigmas de Procedimientos 
+Paradigmas que no son de Procedimientos 
+Sistemas Neuronales Artificiales 
+Sistemas Expertos Interconectados y Aprendizaje Inductivo 
+1. 
+Presentación 
+Bienvenidos a la clase Nº3 de Desarrollo de Sistemas de Inteligencia Artificial. En 
+esta clase desarrollaremos el tema de los Sistemas Expertos. Este concepto es 
+importante porque nos permitirá entender cómo emular el conocimiento y la 
+experiencia de expertos humanos en dominios específicos mediante el uso de 
+bases de conocimiento y mecanismos de inferencia. Y nos ayudará a 
+comprender mejor cuando estudiemos las aplicaciones prácticas de la 
+Inteligencia Artificial en diversos campos. En la clase pasada hemos trabajado 
+sobre las Redes Neuronales y el Deep Learning, que son tecnologías inspiradas en 
+el funcionamiento del cerebro humano. Ahora exploraremos los Sistemas 
+Expertos, que siguen un enfoque distinto basado en la representación simbólica 
+del conocimiento y el razonamiento lógico. 
+1 
+2. 
+Desarrollo y Actividades 
+Figura 1 - Algunas áreas de inteligencia artificial 
+¿Qué es un sistema experto? 
+Un sistema experto puede ser definido como un programa informático que 
+intenta emular la habilidad de toma de decisiones de un especialista humano en 
+un dominio de conocimiento específico. Estos sistemas utilizan una base de 
+conocimientos, que contiene información sobre el dominio en cuestión, y 
+procedimientos de inferencia para resolver problemas complejos que 
+normalmente requerirían la experiencia de un experto humano. 
+2 
+Figura 2 - Conceptos básicos del funcionamiento de un sistema experto 
+A diferencia de los sistemas convencionales, los sistemas expertos no se 
+basan en algoritmos generales, sino que se centran en un área de conocimiento 
+particular. Esta especialización les permite abordar problemas muy complejos y 
+proporcionar soluciones expertas en ese campo específico. 
+Figura 3 - Un probable problema y su relación con el dominio del conocimiento 
+Ventajas de los sistemas expertos 
+Los sistemas expertos ofrecen varias ventajas significativas en comparación con 
+los expertos humanos: 
+1. 
+Mayor disponibilidad y costo reducido de la experiencia: La experiencia de 
+un experto humano puede ser costosa y no siempre estar disponible. Un 
+sistema experto puede proporcionar esa misma experiencia a un costo 
+mucho menor y estar disponible en cualquier momento y lugar. 
+3 
+2. Peligro reducido al operar en ambientes peligrosos: Los sistemas expertos 
+pueden ser utilizados en situaciones peligrosas donde sería arriesgado 
+enviar a un experto humano, como en entornos radioactivos o tóxicos. 
+3. Permanencia y experiencia múltiple combinada: Un sistema experto puede 
+combinar el conocimiento y la experiencia de varios expertos humanos, 
+creando así una base de conocimientos más completa y duradera. 
+4. Mayor confiabilidad al proporcionar segundas opiniones: Los sistemas 
+expertos pueden ser utilizados para obtener una segunda opinión o 
+verificar el trabajo de un experto humano, reduciendo así el riesgo de 
+errores. 
+5. Capacidad de explicar su razonamiento: A diferencia de los expertos 
+humanos, los sistemas expertos pueden explicar detalladamente su 
+proceso de razonamiento y las reglas que se aplicaron para llegar a una 
+conclusión. 
+6. Potencial para respuesta rápida y sin emociones: Los sistemas expertos 
+pueden proporcionar respuestas rápidas y objetivas, sin verse afectados 
+por factores emocionales o sesgos humanos. 
+4 
+Conceptos generales de los sistemas expertos 
+Figura 4 - Desarrollo de un sistema experto 
+Los sistemas expertos se basan en varios conceptos fundamentales: 
+● Representación del conocimiento: El conocimiento del dominio se 
+representa en forma de reglas de producción del tipo "SI .ENTONCES". Estas 
+reglas codifican el conocimiento y la experiencia de los expertos humanos. 
+● Separación del conocimiento y el mecanismo de inferencia: En los 
+sistemas expertos, la base de conocimiento (que contiene las reglas) se 
+separa del mecanismo de inferencia (el componente que aplica esas 
+reglas para resolver problemas). 
+● Técnicas de inferencia: Los sistemas expertos utilizan técnicas de 
+razonamiento como el encadenamiento hacia adelante (partir de los 
+hechos conocidos y aplicar reglas para inferir nuevas conclusiones) y el 
+5 
+encadenamiento hacia atrás (partir de un objetivo y buscar reglas que 
+permitan inferirlo). 
+● Capacidades de explicación: Los sistemas expertos tienen la capacidad de 
+explicar su razonamiento y justificar sus conclusiones, lo que los hace más 
+transparentes y comprensibles para los usuarios. 
+El desarrollo de la tecnología de sistemas expertos 
+El desarrollo de la tecnología de sistemas expertos se remonta a investigaciones 
+sobre la solución humana de problemas y el uso de reglas de producción. 
+Inicialmente, se intentó crear sistemas inteligentes independientes del dominio, 
+pero pronto se descubrió que era más efectivo centrarse en áreas de 
+conocimiento específicas. 
+Los primeros prototipos exitosos de sistemas expertos, como DENDRAL 
+(para identificar estructuras moleculares), MYCIN (para diagnosticar 
+enfermedades infecciosas) y XCON (para configurar sistemas informáticos), 
+demostraron el potencial de esta tecnología. Un avance clave fue la separación 
+del conocimiento y el mecanismo de inferencia, lo que permitió desarrollar 
+sistemas más flexibles y mantenibles. 
+Lenguajes, shells y herramientas 
+Para facilitar el desarrollo de sistemas expertos, se han creado lenguajes y 
+herramientas especializadas. Las shells de sistemas expertos proporcionan un 
+mecanismo de inferencia predefinido, de modo que los desarrolladores solo 
+necesitan agregar la base de conocimiento específica del dominio. 
+6 
+Figura 5 - Convergencia de tres factores importantes en la creación del moderno 
+sistema experto basado en reglas 
+Además, existen herramientas adicionales que ofrecen utilidades para 
+facilitar el proceso de desarrollo, como interfaces de usuario, gestión de la base 
+de conocimientos y capacidades de explicación. 
+Elementos de un sistema experto 
+Un sistema experto típico consta de varios componentes clave: 
+● Interfaz de usuario: Permite la interacción entre el usuario y el sistema, ya 
+sea a través de una interfaz gráfica o de línea de comandos. 
+● Base de conocimiento: Contiene el conocimiento del dominio específico en 
+forma de reglas de producción u otra representación. 
+● Memoria de trabajo: Almacena los hechos conocidos y las conclusiones 
+inferidas durante el proceso de razonamiento. 
+● Mecanismo de inferencia: Aplica las reglas de la base de conocimiento a 
+los hechos de la memoria de trabajo para inferir nuevas conclusiones. 
+● Agenda: Mantiene una lista de reglas activadas para ser ejecutadas por el 
+mecanismo de inferencia. 
+7 
+● Medios de explicación: Permiten al sistema explicar su razonamiento y 
+justificar sus conclusiones. 
+● Adquisición de conocimiento: Mecanismos para adquirir y actualizar el 
+conocimiento de la base de conocimiento, ya sea de forma manual o 
+automática. 
+Figura 6 - Estructura de un sistema experto basado en reglas 
+El ciclo de ejecución de un sistema experto implica resolver conflictos 
+(decidir qué regla aplicar si hay varias activadas), ejecutar las reglas 
+seleccionadas, hacer correspondencias entre las reglas y los hechos, y verificar si 
+se han cumplido las condiciones para interrumpir el proceso. 
+8 
+Sistemas de Producción 
+Los sistemas basados en reglas, también conocidos como sistemas de 
+producción, son uno de los tipos más populares de sistemas expertos en la 
+actualidad. En estos sistemas, el conocimiento se representa en forma de reglas 
+de producción del tipo "SI (condición) ENTONCES (acción)". 
+Las reglas son populares debido a su naturaleza modular, lo que facilita su 
+mantenimiento y actualización, así como por sus capacidades de explicación y 
+su semejanza con el proceso cognitivo humano. Los sistemas de producción 
+tienen sus orígenes en los trabajos de Post sobre sistemas de reescritura y los 
+algoritmos de Markov y Rete para el emparejamiento eficiente de patrones. 
+Figura 7 -Fundamentos de los modernos sistemas expertos basados en reglas 
+Paradigmas de Procedimientos 
+En el campo de la programación, se distinguen dos paradigmas principales: los 
+procedurales y los no procedurales. Los paradigmas procedurales se 
+9 
+caracterizan por especificar una secuencia de pasos o procedimientos que 
+deben seguirse para resolver un problema. 
+La programación imperativa, donde se definen instrucciones y estructuras 
+de control (como bucles y condicionales) para manipular datos, es un ejemplo 
+de paradigma procedimental. Otro ejemplo es la programación funcional, donde 
+se utilizan funciones matemáticas para transformar datos de entrada en salidas. 
+Figura 8 -Lenguajes de procedimientos 
+Paradigmas que no son de Procedimientos 
+Por otro lado, los paradigmas no procedurales se enfocan en describir lo que se 
+desea lograr, en lugar de especificar cómo hacerlo. Algunos ejemplos de estos 
+paradigmas son: 
+● Programación declarativa: Se describe la lógica del problema, y un 
+motor de inferencia se encarga de resolver cómo alcanzar la 
+solución. 
+● Programación orientada a objetos: Se definen objetos con 
+propiedades y comportamientos, y se interactúa con ellos mediante 
+el envío de mensajes. 
+● Programación lógica: Se especifican hechos y reglas lógicas, y un 
+motor de inferencia se encarga de deducir conclusiones a partir de 
+ellos. 
+10 
+● Sistemas expertos: Se basan en la representación del conocimiento 
+en forma de reglas o estructuras similares, y un mecanismo de 
+inferencia aplica ese conocimiento para resolver problemas 
+específicos. 
+Los sistemas expertos se consideran un tipo de paradigma no 
+procedimental, ya que se centran en representar el conocimiento en lugar de 
+especificar procedimientos detallados. Sin embargo, combinan elementos de 
+diferentes paradigmas, como la programación declarativa (reglas) y la 
+programación lógica (inferencia). 
+Figura 9 -Lenguajes que no son de procedimientos 
+Sistemas Neuronales Artificiales 
+Los sistemas neuronales artificiales (ANN, por sus siglas en inglés) son un tipo de 
+tecnología de inteligencia artificial inspirada en el funcionamiento del cerebro 
+humano. Estos sistemas intentan emular la forma en que el cerebro procesa 
+información a través de redes neuronales biológicas. 
+Los elementos clave de los sistemas neuronales artificiales son: 
+● Neuronas artificiales: Unidades de procesamiento simples que 
+reciben entradas, las ponderan y producen una salida. 
+11 
+● Algoritmos de aprendizaje: Métodos que permiten ajustar los pesos 
+de las conexiones entre neuronas para aprender a partir de datos 
+de entrenamiento. 
+● Arquitecturas de red: Diferentes estructuras y topologías de las 
+redes neuronales artificiales. 
+Los orígenes de esta tecnología se remontan a los primeros modelos 
+matemáticos de neuronas biológicas, y ha experimentado varios avances y 
+períodos de auge y declive. En la actualidad, los sistemas neuronales artificiales 
+tienen diversas aplicaciones prácticas, como el reconocimiento de patrones, la 
+minería de datos y el aprendizaje automático. 
+Figura 10 -Red Neuronales 
+Sistemas Expertos Interconectados y Aprendizaje Inductivo 
+Una de las áreas de investigación en sistemas expertos es la construcción de 
+sistemas expertos utilizando sistemas neuronales artificiales y técnicas de 
+aprendizaje inductivo a partir de ejemplos. Esto permitiría que los sistemas 
+12 
+expertos adquieran conocimiento de manera automática, sin necesidad de 
+codificarlo manualmente en forma de reglas. 
+El proceso de adquisición automática de conocimiento tiene como 
+objetivo reducir el "cuello de botella" que representa la tarea de extraer y codificar 
+el conocimiento de expertos humanos. Al combinar sistemas expertos y sistemas 
+neuronales artificiales, se busca aprovechar las fortalezas de ambos enfoques y 
+crear sistemas más flexibles y escalables. 
+3. Instancia de Autoevaluación: 
+En esta instancia de autoevaluación te pedimos que puedas poner en juego lo 
+que has aprendido hasta este momento.Recordá que siempre podrás volver a la 
+teoría presentada en esta clase o hacer las preguntas pertinentes en los 
+encuentros sincrónicos o las tutorías presenciales. 
+Es importante tener en cuenta que para aprobar esta instancia deberás: - Entregar en tiempo y forma - Realizar un 60% de la actividad correctamente.  - Cumplir con las consignas  - Cumplir con el formato requerido. 
+4. Actividad Integradora de Cierre: 
+En esta actividad integradora de cierre vamos a poner en juego todos los 
+conocimientos que hemos recorrido juntos en esta clase.  Tendremos en cuenta 
+los tipos de ejercicios que realizamos la teoría que leímos y los ejemplos que 
+vimos en los diferentes recursos. 
+5. Cierre: 
+Los sistemas expertos son una tecnología de inteligencia artificial diseñada para 
+abordar problemas complejos del mundo real que son difíciles de resolver 
+mediante métodos convencionales de programación. Estos sistemas se basan 
+en el conocimiento codificado en forma de reglas u otras representaciones, y 
+13 
+utilizan mecanismos de inferencia para aplicar ese conocimiento y obtener 
+soluciones expertas. 
+Si bien la programación convencional carece de conocimiento o 
+algoritmos eficientes para resolver ciertos problemas, los sistemas expertos 
+pueden utilizarse de manera efectiva en estos casos gracias a su base de 
+conocimiento. Sin embargo, también tienen limitaciones y no son adecuados 
+para todos los tipos de problemas. 
+La selección de un dominio de problema apropiado es crucial para el éxito 
+de un sistema experto. Se deben considerar criterios como la existencia de 
+expertos humanos, la complejidad del problema, el valor económico potencial y 
+la disponibilidad de datos y conocimiento en el dominio. 
+Los sistemas expertos ofrecen ventajas como la disponibilidad constante 
+de la experiencia, la capacidad de operar en entornos peligrosos, la combinación 
+de múltiples experiencias, la confiabilidad al proporcionar segundas opiniones, la 
+capacidad de explicar su razonamiento y la respuesta rápida y objetiva. 
+Sin embargo, también tienen algunas limitaciones, como la dificultad de 
+adquirir y mantener el conocimiento, la incapacidad para aprender de manera 
+autónoma en muchos casos, y la posible falta de flexibilidad y creatividad en 
+comparación con los humanos. 
+Los sistemas expertos deben considerarse como otra herramienta de programación 
+adecuada para ciertas aplicaciones, pero no para otras. La clave es comprender 
+sus fortalezas y debilidades, y seleccionar los problemas adecuados para su 
+aplicación. 

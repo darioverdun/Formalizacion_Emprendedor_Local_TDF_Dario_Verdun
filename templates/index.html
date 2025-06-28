@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Experto - Formalización del Emprendedor Fueguino</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body:before {
+            content: '';
+            background: url('/static/img/Bandera_de_la_Provincia_de_Tierra_del_Fuego.svg.png') no-repeat center center fixed;
+            background-size: cover;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        /* Header del Sistema Experto */
+        .expert-system-header {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10;
+            position: relative;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .header-title {
+            flex: 1;
+            min-width: 300px;
+        }
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        .header-title p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        .expert-system-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .info-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Contenedor principal */
+        .main-container {
+            flex: 1;
+            display: flex;
+            max-width: 1400px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* Panel de componentes del Sistema Experto */
+        .expert-components-panel {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .component-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .component-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .component-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .knowledge-base .component-icon { background: #4CAF50; }
+        .inference-engine .component-icon { background: #2196F3; }
+        .working-memory .component-icon { background: #FF9800; }
+        .explanation-capability .component-icon { background: #9C27B0; }
+
+        .component-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+        .component-status {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-active { background: #4CAF50; }
+        .status-working { background: #FF9800; animation: pulse 1.5s infinite; }
+        .status-idle { background: #9E9E9E; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Área de chat principal */
+        .chat-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            max-height: calc(100vh - 140px);
+        }
+        .chat-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 400px;
+        }
+        .message {
+            margin: 15px 0;
+            padding: 12px 16px;
+            border-radius: 12px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .system-message {
+            background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+            border-left: 4px solid #2196f3;
+            margin-right: 60px;
+        }
+        .system-message:before {
+            content: "🤖";
+            position: absolute;
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #2196f3;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .user-message {
+            background: linear-gradient(45deg, #f5f5f5, #eeeeee);
+            border-left: 4px solid #9e9e9e;
+            text-align: right;
+            margin-left: 60px;
+        }
+        .user-message:before {
+            content: "👤";
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #9e9e9e;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Área de opciones y controles */
+        .options-container {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 0 0 12px 12px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #1976d2, #1565c0);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        /* Resultados */
+        .result {
+            background: linear-gradient(45deg, #e8f5e9, #c8e6c9);
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+        }
+        .explanation-section {
+            background: linear-gradient(45deg, #f3e5f5, #e1bee7);
+            border-left: 4px solid #9c27b0;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        .explanation-title {
+            font-weight: 600;
+            color: #7b1fa2;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .explanation-title:before {
+            content: "";
+            margin-right: 8px;
+        }
+        .applied-rules {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .rule-badge {
+            background: rgba(156, 39, 176, 0.1);
+            color: #7b1fa2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            border: 1px solid rgba(156, 39, 176, 0.3);
+        }
+
+        /* Botones especiales */
+        #reiniciar {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            margin-top: 15px;
+        }
+        #reiniciar:hover {
+            background: linear-gradient(45deg, #d32f2f, #c62828);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                max-width: 100%;
+            }
+            .expert-components-panel {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+            }
+            .component-card {
+                min-width: 250px;
+                flex-shrink: 0;
+            }
+        }
+        @media (max-width: 768px) {
+            .expert-components-panel {
+                flex-direction: column;
+            }
+            .component-card {
+                min-width: auto;
+            }
+            .system-message, .user-message {
+                margin-left: 0;
+                margin-right: 0;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header del Sistema Experto -->
+    <header class="expert-system-header">
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Sistema Experto - Formalización del Emprendedor Fueguino</h1>
+                <p>Asesoramiento fiscal inteligente basado en reglas de producción</p>
+                <div class="expert-system-info">
+                    <span class="info-badge">🗄️ Base de Conocimiento: 20+ Reglas</span>
+                    <span class="info-badge">⚙️ Motor de Inferencia: Activo</span>
+                    <span class="info-badge">🧠 Capacidad de Explicación: Habilitada</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor principal -->
+    <div class="main-container">
+        <!-- Panel de componentes del Sistema Experto -->
+        <aside class="expert-components-panel">
+            <!-- Base de Conocimiento -->
+            <div class="component-card knowledge-base">
+                <div class="component-header">
+                    <div class="component-icon">KB</div>
+                    <div class="component-title">Base de Conocimiento</div>
+                </div>
+                <div class="component-status">
+                    <span class="status-indicator status-active"></span>
+                    <span id="knowledge-status">20+ reglas cargadas</span>
+                </div>
+            </div>
+
+            <!-- Motor de Inferencia -->
+            <div class="component-card inference-engine">
+                <div class="component-header">
+                    <div class="component-icon">IE</div>
+                    <div class="component-title">Motor de Inferencia</div>
+                </div>
+                <div class="component-status">
+                    <span class="status-indicator status-idle" id="inference-indicator"></span>
+                    <span id="inference-status">En espera</span>
+                </div>
+            </div>
+
+            <!-- Memoria de Trabajo -->
+            <div class="component-card working-memory">
+                <div class="component-header">
+                    <div class="component-icon">WM</div>
+                    <div class="component-title">Memoria de Trabajo</div>
+                </div>
+                <div class="component-status">
+                    <span class="status-indicator status-idle" id="memory-indicator"></span>
+                    <span id="memory-status">Sesión no iniciada</span>
+                </div>
+            </div>
+
+            <!-- Capacidad de Explicación -->
+            <div class="component-card explanation-capability">
+                <div class="component-header">
+                    <div class="component-icon">EC</div>
+                    <div class="component-title">Capacidad de Explicación</div>
+                </div>
+                <div class="component-status">
+                    <span class="status-indicator status-active"></span>
+                    <span id="explanation-status">Sistema listo</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área de conversación principal -->
+        <main class="chat-container">
+            <div class="chat-header">
+                💬 Consulta Fiscal Interactiva
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Los mensajes aparecerán aquí dinámicamente -->
+            </div>
+            <div class="options-container">
+                <div class="options-grid" id="options-container">
+                    <!-- Las opciones aparecerán aquí dinámicamente -->
+                </div>
+                <button id="reiniciar" style="display: none;">🔄 Reiniciar Consulta</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let sesionId = null;
+        let chatHistory = [];
+        let appliedRulesCount = 0;
+
+        // Función para actualizar el estado de los componentes del Sistema Experto
+        function updateExpertSystemStatus(component, status, message) {
+            const indicator = document.getElementById(`${component}-indicator`);
+            const statusText = document.getElementById(`${component}-status`);
+            
+            if (indicator) {
+                indicator.className = `status-indicator status-${status}`;
+            }
+            if (statusText) {
+                statusText.textContent = message;
+            }
+        }
+
+        async function iniciarSesion() {
+            updateExpertSystemStatus('inference', 'working', 'Iniciando sesión...');
+            updateExpertSystemStatus('memory', 'working', 'Inicializando...');
+            
+            try {
+                const response = await fetch('/iniciar_sesion', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                sesionId = data.sesion_id;
+                
+                updateExpertSystemStatus('inference', 'active', 'Sesión iniciada');
+                updateExpertSystemStatus('memory', 'active', `Sesión: ${sesionId.substring(0, 8)}...`);
+                
+                mostrarPregunta(data.siguiente_pregunta);
+            } catch (error) {
+                console.error('Error al iniciar sesión:', error);
+                updateExpertSystemStatus('inference', 'idle', 'Error en inicialización');
+                updateExpertSystemStatus('memory', 'idle', 'Error de conexión');
+            }
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${tipo}-message`;
+            messageDiv.textContent = mensaje;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatHistory.push({ mensaje, tipo });
+        }
+
+        function mostrarPregunta(pregunta) {
+            updateExpertSystemStatus('inference', 'working', 'Evaluando reglas...');
+            
+            mostrarMensaje(pregunta.texto, 'system');
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            if (pregunta.tipo === 'opcion') {
+                pregunta.opciones.forEach(opcion => {
+                    const button = document.createElement('button');
+                    button.textContent = opcion;
+                    button.onclick = () => enviarRespuesta(pregunta.id, opcion);
+                    optionsContainer.appendChild(button);
+                });
+            } else if (pregunta.tipo === 'numero') {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.01';
+                input.placeholder = 'Ingresa el valor numérico';
+                
+                const button = document.createElement('button');
+                button.textContent = '📤 Enviar';
+                button.onclick = () => {
+                    const valor = parseFloat(input.value);
+                    if (!isNaN(valor)) {
+                        enviarRespuesta(pregunta.id, '', valor);
+                    }
+                };
+
+                optionsContainer.appendChild(input);
+                optionsContainer.appendChild(button);
+            }
+            
+            updateExpertSystemStatus('inference', 'idle', 'Esperando respuesta del usuario');
+        }
+
+        async function enviarRespuesta(preguntaId, respuesta, valorNumerico = null) {
+            updateExpertSystemStatus('inference', 'working', 'Procesando respuesta...');
+            updateExpertSystemStatus('memory', 'working', 'Actualizando estado...');
+            
+            if (respuesta) {
+                mostrarMensaje(respuesta, 'user');
+            } else if (valorNumerico !== null) {
+                mostrarMensaje(valorNumerico.toString(), 'user');
+            }
+
+            try {
+                const response = await fetch(`/responder/${sesionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pregunta_id: preguntaId,
+                        respuesta: respuesta,
+                        valor_numerico: valorNumerico
+                    })
+                });
+
+                const data = await response.json();
+                appliedRulesCount++;
+
+                updateExpertSystemStatus('memory', 'active', `${appliedRulesCount} respuestas almacenadas`);
+                updateExpertSystemStatus('explanation', 'active', `${appliedRulesCount} reglas evaluadas`);
+
+                if (data.tipo === 'pregunta') {
+                    mostrarPregunta(data.pregunta);
+                } else if (data.tipo === 'resultado') {
+                    updateExpertSystemStatus('inference', 'active', 'Consulta completada');
+                    mostrarResultado(data);
+                }
+            } catch (error) {
+                console.error('Error al enviar respuesta:', error);
+                updateExpertSystemStatus('inference', 'idle', 'Error en procesamiento');
+            }
+        }
+
+        function mostrarResultado(data) {
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result';
+            
+            let resultadoHTML = `<h2>${data.mensaje}</h2>`;
+            if (data.detalles) {
+                // Solo mostrar detalles de categoría y pagos si existen
+                if (data.detalles.categoria) {
+                    resultadoHTML += `
+                        <p><strong>Categoría:</strong> ${data.detalles.categoria}</p>
+                        <p><strong>Tipo de Actividad:</strong> ${data.detalles.tipo_actividad}</p>
+                        <h3>Pagos Nacionales:</h3>
+                        <ul>
+                            <li>Impuesto: $${data.detalles.pagos_nacionales.impuesto.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</li>
+                            <li>SIPA: ${typeof data.detalles.pagos_nacionales.sipa === 'string' ? data.detalles.pagos_nacionales.sipa : '$' + data.detalles.pagos_nacionales.sipa.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</li>
+                            <li>Obra Social: ${typeof data.detalles.pagos_nacionales.obra_social === 'string' ? data.detalles.pagos_nacionales.obra_social : '$' + data.detalles.pagos_nacionales.obra_social.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</li>
+                            <li><strong>Total Nacional: $${data.detalles.total_nacional.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></li>
+                        </ul>
+                    `;
+                    
+                    if (data.detalles.pagos_provinciales && Object.keys(data.detalles.pagos_provinciales).length > 0) {
+                        resultadoHTML += `
+                            <h3>Pagos Provinciales:</h3>
+                            <ul>
+                                <li>AREF: $${data.detalles.pagos_provinciales.aref.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</li>
+                                <li><strong>Total Provincial: $${data.detalles.total_provincial.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></li>
+                            </ul>
+                        `;
+                    }
+                    
+                    resultadoHTML += `
+                        <h3>Total General: $${data.detalles.total_general.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+                    `;
+                }
+
+                // Mostrar capacidad de explicación si hay reglas aplicadas (tanto para casos exitosos como negativos)
+                if (data.detalles.razonamiento_aplicado && data.detalles.razonamiento_aplicado.length > 0) {
+                    resultadoHTML += `
+                        <div class="explanation-section">
+                            <div class="explanation-title">
+                                Razonamiento del Sistema Experto
+                            </div>
+                            <p>El sistema aplicó las siguientes reglas durante el proceso de inferencia:</p>
+                            <div class="applied-rules">
+                    `;
+                    data.detalles.razonamiento_aplicado.forEach(regla => {
+                        resultadoHTML += `<span class="rule-badge">${regla}</span>`;
+                    });
+                    resultadoHTML += `
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                                <em>Esta traza de razonamiento muestra cómo el Motor de Inferencia consultó la Base de Conocimiento para llegar a esta conclusión.</em>
+                            </p>
+                        </div>
+                    `;
+                }
+                
+                // Solo mostrar la información importante para casos de éxito en monotributo
+                if (data.detalles.categoria) {
+                    resultadoHTML += `
+                        <div style="margin-top: 30px; padding: 20px; background-color: #fff3e0; border-left: 4px solid #ff9800; border-radius: 4px;">
+                            <h3 style="color: #e65100;">Importante – Información a tener en cuenta antes de inscribirse</h3>
+                            <p>Antes de avanzar con el proceso de inscripción, es fundamental que sepa que al registrarse en el sistema formal (por ejemplo, como trabajador autónomo o bajo el régimen de Monotributo), se considerará que usted comienza a generar ingresos formales.</p>
+                            <p>Por este motivo, podría dejar de percibir beneficios sociales destinados exclusivamente a personas sin ingresos registrados, tales como:</p>
+                            <ul>
+                                <li>Asignación Universal por Hijo (AUH)</li>
+                                <li>Planes o programas sociales de asistencia directa</li>
+                                <li>Otras ayudas económicas reservadas para personas sin empleo formal o sin ingresos</li>
+                            </ul>
+                            <p>Le recomendamos evaluar esta situación con cuidado y, en caso de dudas, consultar con un organismo competente</p>
+                            <p>Este sistema experto no reemplaza el asesoramiento profesional, pero está diseñado para brindarle orientación inicial confiable y transparente.</p>
+                        </div>
+                    `;
+                }
+            }
+            resultDiv.innerHTML = resultadoHTML;
+            optionsContainer.appendChild(resultDiv);
+
+            // Mostrar el botón de reinicio
+            document.getElementById('reiniciar').style.display = 'block';
+            
+            // Actualizar el estado de los componentes
+            updateExpertSystemStatus('explanation', 'active', 'Explicación disponible');
+            updateExpertSystemStatus('inference', 'active', 'Resultado generado');
+        }
+
+        document.getElementById('reiniciar').onclick = async () => {
+            updateExpertSystemStatus('inference', 'working', 'Reiniciando sistema...');
+            updateExpertSystemStatus('memory', 'working', 'Limpiando memoria...');
+            
+            try {
+                const response = await fetch(`/reiniciar/${sesionId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+                
+                // Limpiar el chat
+                document.getElementById('chat-messages').innerHTML = '';
+                document.getElementById('options-container').innerHTML = '';
+                document.getElementById('reiniciar').style.display = 'none';
+                
+                // Resetear contadores
+                appliedRulesCount = 0;
+                
+                // Iniciar nueva sesión
+                sesionId = data.sesion_id;
+                updateExpertSystemStatus('memory', 'active', `Nueva sesión: ${sesionId.substring(0, 8)}...`);
+                updateExpertSystemStatus('explanation', 'active', 'Sistema reiniciado');
+                
+                mostrarPregunta(data.siguiente_pregunta);
+            } catch (error) {
+                console.error('Error al reiniciar:', error);
+                updateExpertSystemStatus('inference', 'idle', 'Error al reiniciar');
+            }
+        };
+
+        // Iniciar el sistema al cargar la página
+        window.addEventListener('load', () => {
+            setTimeout(iniciarSesion, 500); // Pequeño delay para que se vean las animaciones
+        });
+    </script>
+</body>
+</html>

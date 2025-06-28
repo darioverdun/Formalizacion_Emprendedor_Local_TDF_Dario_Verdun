@@ -1,0 +1,138 @@
+{
+    "servicios": {
+        "A": {
+            "solo_impuesto": 3633.98,
+            "completo": 32221.31,
+            "sipa": 11871.01,
+            "obra_social": 16716.32
+        },
+        "B": {
+            "solo_impuesto": 6904.57,
+            "completo": 36679.0,
+            "sipa": 13058.11,
+            "obra_social": 16716.32
+        },
+        "C": {
+            "solo_impuesto": 11871.01,
+            "completo": 42951.25,
+            "sipa": 14363.92,
+            "obra_social": 16716.32
+        },
+        "D": {
+            "solo_impuesto": 19381.24,
+            "completo": 55047.33,
+            "sipa": 15800.32,
+            "obra_social": 19865.77
+        },
+        "E": {
+            "solo_impuesto": 36339.83,
+            "completo": 77946.73,
+            "sipa": 17380.35,
+            "obra_social": 24226.55
+        },
+        "F": {
+            "solo_impuesto": 51118.03,
+            "completo": 98096.95,
+            "sipa": 19118.38,
+            "obra_social": 27860.54
+        },
+        "G": {
+            "solo_impuesto": 93029.96,
+            "completo": 149836.62,
+            "sipa": 26765.73,
+            "obra_social": 30040.93
+        },
+        "H": {
+            "solo_impuesto": 266492.09,
+            "completo": 340061.68,
+            "sipa": 37472.03,
+            "obra_social": 36097.56
+        },
+        "I": {
+            "solo_impuesto": 529955.85,
+            "completo": 626993.55,
+            "sipa": 52460.84,
+            "obra_social": 44576.86
+        },
+        "J": {
+            "solo_impuesto": 635947.02,
+            "completo": 759420.03,
+            "sipa": 73445.18,
+            "obra_social": 50027.83
+        },
+        "K": {
+            "solo_impuesto": 890325.83,
+            "completo": 1050323.75,
+            "sipa": 102823.25,
+            "obra_social": 57174.67
+        }
+    },
+    "venta": {
+        "A": {
+            "solo_impuesto": 3633.98,
+            "completo": 32221.31,
+            "sipa": 11871.01,
+            "obra_social": 16716.32
+        },
+        "B": {
+            "solo_impuesto": 6904.57,
+            "completo": 36679.0,
+            "sipa": 13058.11,
+            "obra_social": 16716.32
+        },
+        "C": {
+            "solo_impuesto": 10901.95,
+            "completo": 41982.19,
+            "sipa": 14363.92,
+            "obra_social": 16716.32
+        },
+        "D": {
+            "solo_impuesto": 18048.78,
+            "completo": 53714.87,
+            "sipa": 15800.32,
+            "obra_social": 19865.77
+        },
+        "E": {
+            "solo_impuesto": 28829.6,
+            "completo": 70436.5,
+            "sipa": 17380.35,
+            "obra_social": 24226.55
+        },
+        "F": {
+            "solo_impuesto": 37551.16,
+            "completo": 84530.08,
+            "sipa": 19118.38,
+            "obra_social": 27860.54
+        },
+        "G": {
+            "solo_impuesto": 46514.98,
+            "completo": 103321.64,
+            "sipa": 26765.73,
+            "obra_social": 30040.93
+        },
+        "H": {
+            "solo_impuesto": 133246.04,
+            "completo": 206815.63,
+            "sipa": 37472.03,
+            "obra_social": 36097.56
+        },
+        "I": {
+            "solo_impuesto": 211982.34,
+            "completo": 309020.04,
+            "sipa": 52460.84,
+            "obra_social": 44576.86
+        },
+        "J": {
+            "solo_impuesto": 254378.81,
+            "completo": 377851.82,
+            "sipa": 73445.18,
+            "obra_social": 50027.83
+        },
+        "K": {
+            "solo_impuesto": 296775.28,
+            "completo": 456773.2,
+            "sipa": 102823.25,
+            "obra_social": 57174.67
+        }
+    }
+}
