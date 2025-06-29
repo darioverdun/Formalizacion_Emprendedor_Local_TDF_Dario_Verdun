@@ -350,3 +350,5 @@ Para más detalles sobre el funcionamiento del sistema, consultar:
 
 Este sistema experto combina inteligencia artificial y conocimiento contable para brindar una herramienta útil y accesible. Su objetivo es reducir la informalidad, promover el cumplimiento fiscal y apoyar el desarrollo de pequeños emprendimientos, especialmente en contextos donde el asesoramiento profesional no está siempre al alcance de todos.
 
+#   D E P L O Y M E N T   F O R Z A D O   2 0 2 5 - 0 6 - 2 9   0 0 : 0 5 : 3 3  
+ 
