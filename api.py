@@ -845,7 +845,17 @@ app.mount("/static", StaticFiles(directory=os.path.join(current_dir, 'static')),
 def root():
     return FileResponse(os.path.join(current_dir, 'templates', 'index.html'))
 
-# Punto de entrada para ejecución directa
+# Punto de entrada para ejecución directa - ACTUALIZACIÓN 6
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    
+    # Puerto dinámico para Render - ACTUALIZACIÓN 6
+    port = int(os.environ.get("PORT", 8000))
+    
+    print("🚀 SISTEMA EXPERTO EMPRENDEDOR FUEGUINO - ACTUALIZACIÓN 6")
+    print(f"📊 Puerto configurado: {port}")
+    print("✅ Optimizado para Render con PORT dinámico!")
+    print("🎯 Actualizando datos del sistema experto...")
+    
+    uvicorn.run(app, host="0.0.0.0", port=port)

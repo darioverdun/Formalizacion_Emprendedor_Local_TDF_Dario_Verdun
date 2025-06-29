@@ -17,8 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar el código de la aplicación
 COPY . .
 
-# Exponer el puerto
-EXPOSE 8000
+# Exponer puerto dinámico para Render - ACTUALIZACIÓN 6
+EXPOSE $PORT
 
-# Comando para ejecutar la aplicación
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Comando con PORT variable para Render - ACTUALIZACIÓN 6
+CMD ["sh", "-c", "uvicorn api:app --host 0.0.0.0 --port $PORT"]
