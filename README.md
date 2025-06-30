@@ -1,4 +1,7 @@
-# Sistema Experto para la Formalización de Emprendedores en Tierra del Fuego
+
+
+![WhatsApp Image 2025-06-30 at 15 23 04](https://github.com/user-attachments/assets/f2a4cacf-be26-49c2-a337-d8dbe7bdc1a2)
+
 
 
 
