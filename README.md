@@ -6,32 +6,24 @@ Sistema experto modular basado en reglas para determinar la categoría de Monotr
 
 ```
 SISTEMA EXPERTO EMPRENDEDOR FUEGUINO/
-├── src/                              # Código fuente modular
-│   ├── api.py                           # API FastAPI principal (ENTRADA)
-│   ├── monotributo_data.py              # Módulo unificado de datos
-│   ├── monotributo_scraper.py           # Módulo de scraping AFIP
-│   ├── data_manager.py                  # Gestión de archivos JSON
-│   ├── console_interface.py             # Interfaz legacy por consola
-│   └── knowledge_base/               # Base de conocimiento
-│       └── rules.json                   # Reglas del sistema experto
-├── data/                             # Datos y hechos del sistema
-│   ├── aref.json                        # Datos provinciales AREF
-│   ├── categorias.json                  # Categorías Monotributo (cache)
-│   └── pagos.json                       # Pagos Monotributo (cache)
-├── frontend/                         # Interfaz de usuario
-│   ├── static/img/                   # Imágenes
-│   └── templates/                    # Plantillas HTML
-│       └── index.html                   # Interfaz web
-├── deployment/                       # Configuración de despliegue
-│   ├── Dockerfile                       # Imagen Docker
-│   ├── requirements.txt                 # Dependencias Python
-│   └── ...                              # Configuraciones de plataformas
-├── docs/                             # Documentación
-│   ├── README.md                        # Documentación técnica
-│   └── academic/                     # Documentos académicos
-├── start.py                             # Script de inicio Python
-├── start.bat                            # Script de inicio Windows
-└── README.md                            # Este archivo
+├── api.py                           # API FastAPI principal (ENTRADA)
+├── src/                             # Código fuente modular
+│   ├── monotributo_scraper.py       # Módulo de scraping AFIP
+│   ├── data_manager.py              # Gestión de archivos JSON
+│   └── knowledge_base/              # Base de conocimiento
+│       └── rules.json               # Reglas del sistema experto
+├── data/                            # Datos y hechos del sistema
+│   ├── aref.json                    # Datos provinciales AREF
+│   ├── categorias.json              # Categorías Monotributo (cache)
+│   └── pagos.json                   # Pagos Monotributo (cache)
+├── frontend/                        # Interfaz de usuario
+│   ├── static/img/                  # Imágenes
+│   └── templates/                   # Plantillas HTML
+│       └── index.html               # Interfaz web
+├── docs/                            # Documentación
+│   └── README.md                    # Documentación técnica
+├── requirements.txt                 # Dependencias Python
+└── README.md                        # Este archivo
 ```
 
 ## Arquitectura Modular
@@ -70,11 +62,6 @@ SISTEMA EXPERTO EMPRENDEDOR FUEGUINO/
   - Verificación de integridad
   - Información de archivos
 
-#### `console_interface.py` - Interfaz Legacy
-- **Función**: Compatibilidad con versión por consola
-- **Estado**: **LEGACY - Solo para compatibilidad**
-- **Recomendación**: Usar API web
-
 ### Base de Conocimiento Separada
 
 #### `src/knowledge_base/rules.json`
@@ -87,22 +74,25 @@ SISTEMA EXPERTO EMPRENDEDOR FUEGUINO/
 
 ## Inicio Rápido
 
-### Método 1: Scripts de Inicio (Recomendado)
+### Método 1: Ejecución Directa (Recomendado)
 ```bash
-# Windows
-start.bat
-
-# Linux/Mac/Python
-python start.py
-```
-
-### Método 2: Ejecución Directa
-```bash
-cd src
+# Ejecutar la API principal
 python api.py
+
+# La aplicación estará disponible en:
+# http://localhost:8000
 ```
 
-### Método 3: Módulos Independientes
+### Método 2: Con uvicorn explícito
+```bash
+# Usando uvicorn directamente
+python -m uvicorn api:app --reload --host 0.0.0.0 --port 8000
+
+# Para desarrollo con auto-reload
+python -m uvicorn api:app --reload
+```
+
+### Método 3: Módulos Independientes (Testing)
 ```bash
 cd src
 
@@ -112,7 +102,7 @@ python monotributo_scraper.py
 # Probar gestión de datos
 python data_manager.py
 
-# Probar sistema completo de datos
+# Probar sistema completo de datos (si existe)
 python monotributo_data.py
 ```
 
@@ -124,13 +114,13 @@ Cada módulo incluye funciones de testing:
 cd src
 
 # Test de scraping
-python -c "from monotributo_scraper import test_scraping; test_scraping()"
+python monotributo_scraper.py
 
 # Test de gestión de datos
-python -c "from data_manager import test_gestion_datos; test_gestion_datos()"
+python data_manager.py
 
-# Test completo del sistema
-python -c "from monotributo_data import test_sistema_completo; test_sistema_completo()"
+# Test completo del sistema (si disponible)
+python monotributo_data.py
 ```
 
 ## API REST para Desarrolladores
@@ -520,17 +510,16 @@ Durante la reorganización se eliminaron los siguientes archivos innecesarios:
 ```
 SISTEMA EXPERTO EMPRENDEDOR FUEGUINO/
 ├── api.py                           # API Principal (FastAPI)
-├── src/                          # Módulos especializados
+├── src/                             # Módulos especializados
 │   ├── monotributo_scraper.py       # Scraping de AFIP
 │   ├── data_manager.py              # Gestión de datos locales
-│   ├── sistema_experto_legacy_monolitico.py  # Legacy (a eliminar)
-│   └── knowledge_base/           # Base de conocimiento
+│   ├── monotributo_data.py          # Módulo unificado de datos
+│   └── knowledge_base/              # Base de conocimiento
 │       └── rules.json               # Reglas del sistema experto
-├── data/                         # Datos del sistema
-├── frontend/                     # Interfaz web
-├── deployment/                   # Configuración de despliegue
-├── docs/                         # Documentación
-├── start.py, start.bat              # Scripts de inicio
+├── data/                            # Datos del sistema
+├── frontend/                        # Interfaz web
+├── docs/                            # Documentación
+├── requirements.txt                 # Dependencias Python
 └── README.md                        # Este archivo
 ```
 
