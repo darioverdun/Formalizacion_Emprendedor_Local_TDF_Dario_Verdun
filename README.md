@@ -647,6 +647,6 @@ El sistema es **profesional, escalable y listo para producción**, con **documen
 
 ---
 
-**Desarrollado por**: Tecnicatura en Desarrollo de Sistemas de IA  
+**Desarrollado por**: Dario Emmanuel Verdun  
 **Licencia**: Proyecto Académico  
 **Contacto**: Para consultas sobre integración y desarrollo
