@@ -1,4 +1,59 @@
-# Sistema Experto Emprendedor Fueguino - Monotributo
+# Sistema Experto para la Formalización de Emprendedores en Tierra del Fuego
+
+## Materia  
+Desarrollo de Sistemas de Inteligencia Artificial  
+
+**Profesor:** Martín Mirabete  
+**Alumno:** Dario Emmanuel Verdun  
+**Experto entrevistado:** Contador Público Nacional matriculado  
+
+---
+
+## Título del dominio  
+Formalización del emprendedor local en Tierra del Fuego
+
+---
+
+## Objetivo del proyecto
+
+Este proyecto tiene como finalidad el desarrollo de un sistema experto que brinde orientación a emprendedores en el proceso de formalización de sus actividades económicas. Mediante un enfoque basado en reglas, el sistema simula el conocimiento de un profesional en ciencias económicas, ayudando a los usuarios a identificar el régimen fiscal más adecuado según sus características individuales, actividad económica, ingresos estimados y otras variables clave.
+
+El sistema actúa como una herramienta de apoyo al asesoramiento, permitiendo a los emprendedores comprender sus obligaciones fiscales y los pasos necesarios para regularizar su situación.
+
+---
+
+## Contexto del problema
+
+Muchos emprendedores comienzan su actividad de manera informal debido a la falta de información clara sobre los trámites requeridos y los organismos involucrados. Esta informalidad puede limitar su acceso a créditos, generar sanciones involuntarias y dificultar su crecimiento a largo plazo.
+
+Este proyecto busca aportar una solución a esta problemática a través de una herramienta automatizada y accesible.
+
+---
+
+## Relevancia
+
+La implementación de este sistema puede generar un impacto positivo en distintos aspectos:
+
+- Mejora el acceso a información contable y fiscal confiable.
+- Reduce errores comunes en la elección del régimen tributario.
+- Favorece la inclusión de nuevos emprendimientos en el sistema formal.
+- Contribuye al desarrollo económico local mediante la regularización de actividades.
+
+---
+
+## Aporte del Sistema Experto
+
+- Asesoramiento tributario personalizado a través de preguntas y respuestas.
+- Simulación del razonamiento de un contador público.
+- Sugerencias sobre trámites ante organismos nacionales y provinciales.
+- Advertencias sobre incompatibilidades con planes sociales o situaciones laborales.
+- Mejora del cumplimiento fiscal inicial y prevención de errores frecuentes.
+
+---
+
+## Representación y Organización del Conocimiento
+
+La estructura del conocimiento se basa en **reglas de producción (si-entonces)**, organizadas modularmente por jurisdicción (nacional y provincial).
 
 Sistema experto modular basado en reglas para determinar la categoría de Monotributo correspondiente para emprendedores de Tierra del Fuego, Argentina.
 
@@ -10,6 +65,7 @@ SISTEMA EXPERTO EMPRENDEDOR FUEGUINO/
 ├── src/                             # Código fuente modular
 │   ├── monotributo_scraper.py       # Módulo de scraping AFIP
 │   ├── data_manager.py              # Gestión de archivos JSON
+│   ├── monotributo_data.py          # Coordinador de datos unificado
 │   └── knowledge_base/              # Base de conocimiento
 │       └── rules.json               # Reglas del sistema experto
 ├── data/                            # Datos y hechos del sistema
@@ -493,81 +549,30 @@ graph TD
     I --> H
 ```
 
-## **Limpieza de Archivos Completada**
-
-### **Archivos Eliminados** (Julio 2025)
-
-Durante la reorganización se eliminaron los siguientes archivos innecesarios:
-
-- `src/api.py` - **Duplicado obsoleto** (versión anterior)
-- `src/console_interface.py` - **No utilizado** (API web no requiere interfaz de consola)
-- `test_github.txt` - **Archivo de prueba** 
-- `__pycache__/` (varias carpetas) - **Archivos temporales de Python**
-- `tests/` (carpeta vacía) - **Sin contenido**
-- Archivos legacy monolíticos - **Migrados a arquitectura modular**
-
-### **Estructura Final Optimizada**
-
-```
-SISTEMA EXPERTO EMPRENDEDOR FUEGUINO/
-├── api.py                           # API Principal (FastAPI)
-├── src/                             # Módulos especializados
-│   ├── monotributo_scraper.py       # Scraping de AFIP
-│   ├── data_manager.py              # Gestión de datos locales
-│   ├── monotributo_data.py          # Módulo unificado de datos
-│   └── knowledge_base/              # Base de conocimiento
-│       └── rules.json               # Reglas del sistema experto
-├── data/                            # Datos del sistema
-├── frontend/                        # Interfaz web
-├── docs/                            # Documentación
-├── requirements.txt                 # Dependencias Python
-└── README.md                        # Este archivo
-```
-
-## Arquitectura Modular Completada
-
-### **Migración Exitosa**: De Monolítico a Modular
-
-La refactorización del sistema ha sido **completada exitosamente**. Las funcionalidades han sido separadas en módulos especializados:
-
-**Módulos Actuales**:
-- `monotributo_scraper.py` → **Scraping especializado** de AFIP
-- `data_manager.py` → **Gestión de archivos** JSON locales
-- `monotributo_data.py` → **Coordinador principal** de datos
-
-**Integración Modular Actual**:
-```python
-# Arquitectura modular implementada en api.py:
-from src.monotributo_scraper import obtener_datos_monotributo_web
-from src.data_manager import cargar_datos_json_locales, guardar_datos_json_locales
-
-# Módulo coordinador disponible (no usado actualmente):
-from src.monotributo_data import obtener_datos_completos
-```
-
-**Estado**: ✅ **Sistema Completamente Modular** - Arquitectura descentralizada funcionando
-
-## Características Clave
+## Características Clave del Sistema
 
 ### Modularidad
-- Separación clara de responsabilidades
+- Separación clara de responsabilidades entre módulos
 - Módulos independientes y testables
-- Fácil mantenimiento y extensión
+- Fácil mantenimiento y extensión del sistema
 
 ### Scraping Robusto
-- Extracción automatizada desde AFIP
-- Manejo de estructuras complejas
-- Limpieza inteligente de datos
+- Extracción automatizada de datos desde AFIP
+- Manejo inteligente de estructuras web complejas
+- Limpieza automática de datos
+- Sistema de fallback para garantizar disponibilidad
 
 ### Gestión Inteligente de Datos
-- Estrategia de fallback automática
-- Verificación de integridad
-- Cache local con metadatos
+- Estrategia de fallback automática (web → local → datos por defecto)
+- Verificación de integridad de datos
+- Cache local con metadatos de actualización
+- Sincronización automática con fuentes oficiales
 
 ### Sistema Experto Avanzado
-- Reglas separadas en JSON
-- Explicaciones detalladas
+- Base de conocimiento separada en formato JSON
+- Explicaciones detalladas del razonamiento aplicado
 - Motor de inferencia robusto
+- Capacidad de manejo de reglas complejas
 
 ## Desarrollo
 
@@ -603,41 +608,42 @@ Proyecto académico - Tecnicatura en Desarrollo de Sistemas de IA
 
 ---
 
-## Conclusión
+## Funcionalidades Principales
 
-Esta refactorización logra:
-- **Separación del scraping** en módulos independientes
-- **Modularidad completa** del sistema
-- **Base de conocimiento separada** del código
-- **Explicaciones mejoradas** del razonamiento
-- **Testing independiente** de cada módulo
-- **Compatibilidad mantenida** con funcionalidad existente
-- **API REST completamente documentada** para desarrolladores
-- **Ejemplos de integración** en múltiples lenguajes
-- **Arquitectura modular profesional** lista para producción
+Este sistema experto ofrece:
 
-El sistema ahora es **más mantenible, escalable y profesional**, con **documentación completa para desarrolladores externos**.
+- **Determinación automática de categoría de Monotributo** basada en actividad y ingresos
+- **Cálculo de obligaciones fiscales** nacionales y provinciales
+- **Explicaciones detalladas** del razonamiento aplicado
+- **API REST completa** para integración con otros sistemas
+- **Interfaz web intuitiva** para usuarios finales
+- **Datos actualizados** extraídos automáticamente desde AFIP
+- **Sistema de fallback** que garantiza disponibilidad continua
+- **Modularidad** que facilita el mantenimiento y extensión
 
-## Próximos Pasos
+El sistema es **profesional, escalable y listo para producción**, con **documentación completa para desarrolladores** que deseen integrarlo en sus propias aplicaciones.
 
-### Mejoras Técnicas Sugeridas
+## Extensibilidad y Personalización
+
+### Posibles Mejoras Técnicas
 1. **Autenticación API**: Implementar tokens de acceso para uso empresarial
-2. **Rate Limiting**: Limitar requests por IP/usuario
-3. **Persistencia de Sesiones**: Usar Redis o base de datos para sesiones
-4. **Logging Avanzado**: Implementar logging estructurado con niveles
-5. **Tests Automatizados**: Crear suite completa de tests unitarios e integración
+2. **Rate Limiting**: Limitar requests por IP/usuario para proteger el servicio
+3. **Persistencia de Sesiones**: Usar Redis o base de datos para sesiones de larga duración
+4. **Logging Avanzado**: Implementar logging estructurado para monitoreo
+5. **Tests Automatizados**: Suite completa de tests unitarios e integración
 6. **Documentación OpenAPI**: Expandir documentación automática con más ejemplos
 7. **Webhooks**: Notificaciones automáticas cuando cambian los datos de AFIP
-8. **Versionado API**: Implementar versionado para cambios futuros
-9. **Métricas**: Agregar endpoints de métricas para monitoring
-10. **Docker Compose**: Configuración completa para desarrollo y producción
+8. **Versionado API**: Implementar versionado para compatibilidad futura
+9. **Métricas**: Endpoints de métricas para monitoring en producción
+10. **Docker Compose**: Configuración completa para despliegue
 
-### Casos de Uso Avanzados
+### Casos de Uso Potenciales
 - **Integración con sistemas contables** (Tango, Bejerman, etc.)
 - **Chatbots de WhatsApp/Telegram** que usen el sistema experto
 - **Aplicaciones móviles** para emprendedores
 - **Plugins para e-commerce** (Shopify, WooCommerce, etc.)
 - **Servicios de consultoría automatizada**
+- **Integración con plataformas educativas** sobre emprendimiento
 
 ---
 
