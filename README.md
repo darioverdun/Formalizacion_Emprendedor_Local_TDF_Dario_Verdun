@@ -548,14 +548,14 @@ curl -X POST http://localhost:8000/iniciar_sesion | jq
 ## Flujo de Datos
 
 ```mermaid
-graph TD
+flowchart TD
     A[Inicio] --> B[monotributo_data.py]
-    B --> C{Datos web disponibles?}
+    B --> C{¿Datos web disponibles?}
     C -->|Sí| D[monotributo_scraper.py]
     C -->|No| E[data_manager.py]
     D --> F[Verificar integridad]
     E --> F
-    F --> G{Datos válidos?}
+    F --> G{¿Datos válidos?}
     G -->|Sí| H[api.py - Sistema listo]
     G -->|No| I[Usar datos por defecto]
     I --> H
