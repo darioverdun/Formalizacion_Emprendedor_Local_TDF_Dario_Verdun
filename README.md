@@ -76,8 +76,20 @@ SISTEMA EXPERTO EMPRENDEDOR FUEGUINO/
 │   ├── static/img/                  # Imágenes
 │   └── templates/                   # Plantillas HTML
 │       └── index.html               # Interfaz web
-├── docs/                            # Documentación
-│   └── README.md                    # Documentación técnica
+├── docs/                            # Documentación del proyecto
+│   ├── README.md                    # Documentación técnica general
+│   ├── arboles_decision/            # Árboles de decisión del sistema experto
+│   │   ├── README.md                # Documentación de árboles
+│   │   ├── arbol_monotributo_compacto.pdf    # Versión simplificada
+│   │   └── arbol_monotributo_completo.pdf    # Versión técnica completa
+│   └── entregas_proyecto/           # Entregas académicas
+│       ├── README.md                # Documentación de entregas
+│       ├── entrevista_experto/      # Entrevista al contador
+│       │   └── Entrevista a experto para la formulación del sistema experto.pdf
+│       ├── primera_entrega/         # Primera entrega académica
+│       │   └── Primera Entrega Proyecto de Sistema Experto.pdf
+│       └── segunda_entrega/         # Segunda entrega académica
+│           └── Segunda Entrega.pdf
 ├── requirements.txt                 # Dependencias Python
 └── README.md                        # Este archivo
 ```
@@ -605,6 +617,33 @@ El sistema incluye endpoints de monitoreo:
 ## Licencia
 
 Proyecto académico - Tecnicatura en Desarrollo de Sistemas de IA
+
+---
+
+## Documentación Académica Disponible
+
+### 📊 Árboles de Decisión (`docs/arboles_decision/`)
+- **`arbol_monotributo_compacto.pdf`** - Versión simplificada para visualización rápida y presentaciones
+- **`arbol_monotributo_completo.pdf`** - Documentación técnica completa con todas las preguntas anidadas
+
+### 📚 Entregas del Proyecto (`docs/entregas_proyecto/`)
+
+#### 🎯 Entrevista al Experto (`entrevista_experto/`)
+- **`Entrevista a experto para la formulación del sistema experto.pdf`**
+- Transcripción de la entrevista al Contador Público Nacional matriculado
+- Base del conocimiento extraído para el sistema experto
+
+#### 📝 Primera Entrega (`primera_entrega/`)
+- **`Primera Entrega Proyecto de Sistema Experto.pdf`**
+- Documentación inicial del proyecto
+- Definición del dominio del problema
+- Especificación de requisitos y análisis de factibilidad
+
+#### 🔧 Segunda Entrega (`segunda_entrega/`)
+- **`Segunda Entrega.pdf`**
+- Diseño del sistema experto
+- Implementación de reglas de inferencia
+- Documentación técnica y pruebas de validación
 
 ---
 
