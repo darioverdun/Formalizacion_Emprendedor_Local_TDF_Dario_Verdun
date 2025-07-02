@@ -1,0 +1,363 @@
+{
+  "persona_juridica_SI": {
+    "description": "Exclusión por persona jurídica",
+    "explanation": "Se activó porque el usuario indicó que es una persona jurídica (empresa o sociedad). Las personas jurídicas no pueden acceder al régimen simplificado del Monotributo según la normativa vigente.",
+    "condition": {
+      "pregunta_id": "persona_juridica",
+      "respuesta": "SÍ"
+    },
+    "action": {
+      "tipo": "resultado",
+      "mensaje": "Régimen General (No calificás para el Monotributo)\nSegún los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.\n\nImportante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).\nPara evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.\n\nPara más información, podés visitar:\nhttps://www.afip.gob.ar/landing/default.asp"
+    }
+  },
+  
+  "persona_juridica_NO": {
+    "description": "Verificación como persona física",
+    "explanation": "Se activó porque el usuario confirmó que es una persona física. Al ser persona física, puede potencialmente acceder al Monotributo, por lo que se procede a verificar otros requisitos como la participación en sociedades.",
+    "condition": {
+      "pregunta_id": "persona_juridica",
+      "respuesta": "NO (Persona Física)"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "socio_sociedad",
+        "texto": "¿Sos integrante o tenés participación en alguna sociedad o empresa registrada?",
+        "opciones": ["SÍ", "NO"],
+        "tipo": "opcion"
+      }
+    }
+  },
+  
+  "socio_sociedad_SI": {
+    "description": "Exclusión por participación societaria",
+    "explanation": "Se activó porque el usuario indicó que tiene participación en alguna sociedad o empresa. Esta condición excluye automáticamente del régimen del Monotributo según las normas de ARCA.",
+    "condition": {
+      "pregunta_id": "socio_sociedad",
+      "respuesta": "SÍ"
+    },
+    "action": {
+      "tipo": "resultado",
+      "mensaje": "Régimen General (No calificás para el Monotributo)\nSegún los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.\n\nImportante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).\nPara evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.\n\nPara más información, podés visitar:\nhttps://www.afip.gob.ar/landing/default.asp"
+    }
+  },
+  
+  "socio_sociedad_NO": {
+    "description": "Verificación de cantidad de actividades",
+    "explanation": "Se activó porque el usuario confirmó que no tiene participación societaria. Al no tener participación en sociedades, se procede a verificar la cantidad de actividades económicas que realizará.",
+    "condition": {
+      "pregunta_id": "socio_sociedad",
+      "respuesta": "NO"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "actividades_diferentes",
+        "texto": "¿Vas a realizar más de 3 actividades económicas diferentes?",
+        "opciones": ["SÍ", "NO (3 o menos actividades)"],
+        "tipo": "opcion"
+      }
+    }
+  },
+  
+  "actividades_diferentes_SI": {
+    "description": "Exclusión por exceso de actividades",
+    "explanation": "Se activó porque el usuario indicó que realizará más de 3 actividades económicas diferentes. El Monotributo tiene un límite máximo de 3 actividades permitidas.",
+    "condition": {
+      "pregunta_id": "actividades_diferentes",
+      "respuesta": "SÍ"
+    },
+    "action": {
+      "tipo": "resultado",
+      "mensaje": "Régimen General (No calificás para el Monotributo)\nSegún los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.\n\nImportante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).\nPara evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.\n\nPara más información, podés visitar:\nhttps://www.afip.gob.ar/landing/default.asp"
+    }
+  },
+  
+  "actividades_diferentes_NO": {
+    "description": "Identificación del tipo de actividad principal",
+    "explanation": "Se activó porque el usuario confirmó que realizará 3 o menos actividades económicas. Al cumplir este requisito, se procede a identificar el tipo de actividad principal para determinar los límites aplicables.",
+    "condition": {
+      "pregunta_id": "actividades_diferentes",
+      "respuesta": "NO (3 o menos actividades)"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "actividad_servicios",
+        "texto": "¿Tu actividad principal es la prestación de servicios?",
+        "opciones": ["SÍ (Prestación de Servicios)", "NO (Venta de Cosas Muebles)"],
+        "tipo": "opcion"
+      }
+    }
+  },
+  
+  "actividad_servicios_SI": {
+    "description": "Configuración para actividad de servicios",
+    "explanation": "Se activó porque el usuario confirmó que su actividad principal es la prestación de servicios. Esto determina que se aplicarán los límites y categorías correspondientes a servicios en lugar de venta de mercaderías.",
+    "condition": {
+      "pregunta_id": "actividad_servicios",
+      "respuesta": "SÍ (Prestación de Servicios)"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "genera_ingresos",
+        "texto": "¿Ya estás generando ingresos y podés estimar tu facturación anual?",
+        "opciones": ["SÍ", "NO"],
+        "tipo": "opcion"
+      }
+    },
+    "post_action_func": "establecer_tipo_actividad"
+  },
+  
+  "actividad_servicios_NO": {
+    "description": "Configuración para venta de mercaderías y verificación de precio unitario",
+    "explanation": "Se activó porque el usuario indicó que su actividad principal es la venta de cosas muebles. Para esta actividad se debe verificar que el precio unitario no supere el límite establecido para el Monotributo.",
+    "condition": {
+      "pregunta_id": "actividad_servicios",
+      "respuesta": "NO (Venta de Cosas Muebles)"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "precio_unitario",
+        "texto": "¿El precio unitario de los productos que vas a vender supera los $466,361.15?",
+        "opciones": ["SÍ (Supera el límite)", "NO (No supera el límite)"],
+        "tipo": "opcion"
+      }
+    },
+    "post_action_func": "establecer_tipo_actividad"
+  },
+  
+  "precio_unitario_excede": {
+    "description": "Exclusión por precio unitario excesivo",
+    "explanation": "Se activó porque el precio unitario de los productos que vendé supera el límite máximo permitido para el Monotributo. Este límite se actualiza periódicamente según las resoluciones de ARCA.",
+    "condition": {
+      "pregunta_id": "precio_unitario",
+      "respuesta": "SÍ (Supera el límite)"
+    },
+    "action": {
+      "tipo": "resultado",
+      "mensaje": "Régimen General (No calificás para el Monotributo)\nSegún los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.\n\nImportante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).\nPara evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.\n\nPara más información, podés visitar:\nhttps://www.afip.gob.ar/landing/default.asp"
+    }
+  },
+  
+  "precio_unitario_acepta": {
+    "description": "Precio unitario dentro del límite permitido",
+    "explanation": "Se activó porque el precio unitario de los productos está dentro del límite permitido para el Monotributo. Se procede a verificar si ya está generando ingresos para determinar la categoría correspondiente.",
+    "condition": {
+      "pregunta_id": "precio_unitario",
+      "respuesta": "NO (No supera el límite)"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "genera_ingresos",
+        "texto": "¿Ya estás generando ingresos y podés estimar tu facturación anual?",
+        "opciones": ["SÍ", "NO"],
+        "tipo": "opcion"
+      }
+    }
+  },
+  
+  "genera_ingresos_SI": {
+    "description": "Solicitud de datos de ingresos para categorización",
+    "explanation": "Se activó porque el usuario confirmó que ya está generando ingresos. Esto permite una categorización precisa basada en los ingresos reales proyectados para determinar la categoría de Monotributo correspondiente.",
+    "condition": {
+      "pregunta_id": "genera_ingresos",
+      "respuesta": "SÍ"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "ingresos_anuales",
+        "texto": "Ingresá tu proyección de ingresos brutos anuales (sin puntos ni comas, ejemplo: 10222333)",
+        "tipo": "numero"
+      }
+    }
+  },
+  
+  "genera_ingresos_NO": {
+    "description": "Categorización inicial para emprendedores sin ingresos",
+    "explanation": "Se activó porque el usuario indicó que aún no genera ingresos. En este caso, se asigna la categoría A (mínima) y se procede a verificar si tendrá local comercial para evaluar otros parámetros.",
+    "condition": {
+      "pregunta_id": "genera_ingresos",
+      "respuesta": "NO"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "tiene_local",
+        "texto": "¿Tu actividad se desarrolla en un local o establecimiento físico (alquilado o propio)?",
+        "opciones": ["SÍ (Tiene local)", "NO (No tiene local)"],
+        "tipo": "opcion"
+      }
+    },
+    "post_action_func": "establecer_categoria_inicial"
+  },
+  
+  "ingresos_exceden_limite": {
+    "description": "Exclusión por ingresos excesivos",
+    "explanation": "Se activó porque los ingresos anuales proyectados superan el límite máximo permitido para el Monotributo. Este límite varía según el tipo de actividad (servicios o venta).",
+    "condition": {
+      "pregunta_id": "ingresos_anuales",
+      "eval_func": "evaluar_ingresos_limite"
+    },
+    "action": {
+      "tipo": "resultado",
+      "mensaje": "Régimen General (Excede límite de ingresos)"
+    }
+  },
+  
+  "ingresos_dentro_limite": {
+    "description": "Categorización por ingresos dentro del límite",
+    "explanation": "Se activó porque los ingresos anuales están dentro de los límites del Monotributo. Se calculó la categoría correspondiente basada en los ingresos informados y se procede a verificar otros parámetros.",
+    "condition": {
+      "pregunta_id": "ingresos_anuales",
+      "eval_func": "evaluar_ingresos_dentro_limite"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "tiene_local",
+        "texto": "¿Tu actividad se desarrolla en un local o establecimiento físico (alquilado o propio)?",
+        "opciones": ["SÍ (Tiene local)", "NO (No tiene local)"],
+        "tipo": "opcion"
+      }
+    },
+    "post_action_func": "calcular_categoria_por_ingresos"
+  },
+  
+  "tiene_local_NO": {
+    "description": "Finalización para actividades sin local",
+    "explanation": "Se activó porque la actividad no se desarrolla en un local físico. Al no tener local, no se evalúan parámetros de superficie, energía o alquileres, por lo que se procede directamente a la verificación final de relación de dependencia.",
+    "condition": {
+      "pregunta_id": "tiene_local",
+      "respuesta": "NO (No tiene local)"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "relacion_dependencia",
+        "texto": "¿Estás en relación de dependencia?",
+        "opciones": ["SÍ", "NO"],
+        "tipo": "opcion"
+      }
+    },
+    "post_action_func": "establecer_categoria_final"
+  },
+  
+  "tiene_local_SI": {
+    "description": "Inicio de evaluación de parámetros del local",
+    "explanation": "Se activó porque la actividad se desarrolla en un local físico. Esto requiere evaluar parámetros adicionales como superficie, consumo de energía y alquileres que pueden afectar la categoría final del Monotributo.",
+    "condition": {
+      "pregunta_id": "tiene_local",
+      "respuesta": "SÍ (Tiene local)"
+    },
+    "action": {
+      "tipo": "pregunta_superficie",
+      "pregunta_base": "superficie"
+    },
+    "post_action_func": "establecer_categoria_para_superficie"
+  },
+  
+  "supera_superficie": {
+    "description": "Avance de categoría por superficie excedida",
+    "explanation": "Se activó porque la superficie afectada del local supera el límite establecido para la categoría actual. Esto requiere avanzar a una categoría superior o determinar si se exceden los límites del Monotributo.",
+    "condition": {
+      "pregunta_pattern": "superficie_cat_",
+      "eval_func": "evaluar_supera_parametro_superficie"
+    },
+    "action": {
+      "tipo": "avanzar_categoria",
+      "parametro": "superficie"
+    },
+    "post_action_func": "avanzar_categoria_por_parametro_superficie"
+  },
+  
+  "no_supera_superficie": {
+    "description": "Superficie dentro del límite, evaluando energía",
+    "explanation": "Se activó porque la superficie del local está dentro del límite permitido para la categoría actual. Se procede a evaluar el consumo de energía eléctrica como siguiente parámetro.",
+    "condition": {
+      "pregunta_pattern": "superficie_cat_",
+      "eval_func": "evaluar_no_supera_parametro_superficie"
+    },
+    "action": {
+      "tipo": "pregunta_energia",
+      "pregunta_base": "energia"
+    }
+  },
+  
+  "supera_energia": {
+    "description": "Avance de categoría por consumo de energía excedido",
+    "explanation": "Se activó porque el consumo de energía eléctrica supera el límite establecido para la categoría actual. Esto requiere avanzar a una categoría superior o determinar si se exceden los límites del Monotributo.",
+    "condition": {
+      "pregunta_pattern": "energia_cat_",
+      "eval_func": "evaluar_supera_parametro_energia"
+    },
+    "action": {
+      "tipo": "avanzar_categoria",
+      "parametro": "energia"
+    },
+    "post_action_func": "avanzar_categoria_por_parametro_energia"
+  },
+  
+  "no_supera_energia": {
+    "description": "Energía dentro del límite, evaluando alquileres",
+    "explanation": "Se activó porque el consumo de energía está dentro del límite permitido para la categoría actual. Se procede a evaluar los alquileres devengados como último parámetro del local.",
+    "condition": {
+      "pregunta_pattern": "energia_cat_",
+      "eval_func": "evaluar_no_supera_parametro_energia"
+    },
+    "action": {
+      "tipo": "pregunta_alquileres",
+      "pregunta_base": "alquileres"
+    }
+  },
+  
+  "supera_alquileres": {
+    "description": "Avance de categoría por alquileres excedidos",
+    "explanation": "Se activó porque los alquileres devengados superan el límite establecido para la categoría actual. Esto requiere avanzar a una categoría superior o determinar si se exceden los límites del Monotributo.",
+    "condition": {
+      "pregunta_pattern": "alquileres_cat_",
+      "eval_func": "evaluar_supera_parametro_alquileres"
+    },
+    "action": {
+      "tipo": "avanzar_categoria",
+      "parametro": "alquileres"
+    },
+    "post_action_func": "avanzar_categoria_por_parametro_alquileres"
+  },
+  
+  "no_supera_alquileres": {
+    "description": "Todos los parámetros dentro del límite",
+    "explanation": "Se activó porque los alquileres están dentro del límite permitido para la categoría actual. Al haber evaluado todos los parámetros del local (superficie, energía, alquileres), se procede a la verificación final.",
+    "condition": {
+      "pregunta_pattern": "alquileres_cat_",
+      "eval_func": "evaluar_no_supera_parametro_alquileres"
+    },
+    "action": {
+      "tipo": "pregunta",
+      "pregunta": {
+        "id": "relacion_dependencia",
+        "texto": "¿Estás en relación de dependencia?",
+        "opciones": ["SÍ", "NO"],
+        "tipo": "opcion"
+      }
+    },
+    "post_action_func": "establecer_categoria_final"
+  },
+  
+  "relacion_dependencia_final": {
+    "description": "Cálculo final de pagos según relación de dependencia",
+    "explanation": "Se activó para el cálculo final de los pagos del Monotributo. La relación de dependencia afecta los componentes de SIPA y obra social, ya que estos pueden estar cubiertos por el empleo en relación de dependencia.",
+    "condition": {
+      "pregunta_id": "relacion_dependencia"
+    },
+    "action": {
+      "tipo": "resultado_final"
+    },
+    "post_action_func": "calcular_pagos_finales"
+  }
+}

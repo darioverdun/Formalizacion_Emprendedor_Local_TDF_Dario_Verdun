@@ -1,7 +1,60 @@
+# Python cache files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
 .env
 .venv/
 venv/
 env/
+ENV/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test files and debug scripts
+test_*.py
+test_*.txt
+*test*.tmp
+debug_*.py
+prueba_*.py
+simulacion_*.py
+verificar_*.py
+verificacion_*.py
+probar_*.bat
+verificacion_*.bat
+*.debug
+ESTADO_*.md
+SOLUCION_*.md
+
+# Auxiliary execution scripts
+start.py
+start.bat
+ejecutar.py
+ejecutar.bat
+frontend_usuario.bat
+
+# Legacy folders (old structure)
 Sistema experto/
+
+# Local data backups
+data/backup/
+*.backup
+
+# Temporary files
+*.tmp
+*.temp

@@ -520,14 +520,26 @@
                 input.step = '0.01';
                 input.placeholder = 'Ingresa el valor numérico';
                 
-                const button = document.createElement('button');
-                button.textContent = '📤 Enviar';
-                button.onclick = () => {
+                // Función para validar y enviar
+                const enviarValor = () => {
                     const valor = parseFloat(input.value);
-                    if (!isNaN(valor)) {
-                        enviarRespuesta(pregunta.id, '', valor);
+                    if (!isNaN(valor) && valor > 0) {
+                        enviarRespuesta(pregunta.id, valor.toString(), valor);
+                    } else {
+                        alert('Por favor, ingresa un valor numérico válido mayor a 0');
                     }
                 };
+                
+                // Permitir envío con Enter
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        enviarValor();
+                    }
+                });
+                
+                const button = document.createElement('button');
+                button.textContent = '📤 Enviar';
+                button.onclick = enviarValor;
 
                 optionsContainer.appendChild(input);
                 optionsContainer.appendChild(button);
@@ -626,7 +638,14 @@
                             <div class="applied-rules">
                     `;
                     data.detalles.razonamiento_aplicado.forEach(regla => {
-                        resultadoHTML += `<span class="rule-badge">${regla}</span>`;
+                        // Si regla es un objeto, usar su descripción o explicación
+                        let textoRegla = '';
+                        if (typeof regla === 'object' && regla !== null) {
+                            textoRegla = regla.descripcion || regla.explicacion || regla.regla || 'Regla aplicada';
+                        } else {
+                            textoRegla = regla;
+                        }
+                        resultadoHTML += `<span class="rule-badge" title="${regla.explicacion || ''}">${textoRegla}</span>`;
                     });
                     resultadoHTML += `
                             </div>

@@ -3,11 +3,16 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 import json
 import os
-from sistema_experto_5_cop_json import (
-    obtener_datos_monotributo_web,
-    cargar_datos_json_locales,
-    guardar_datos_json_locales
-)
+import sys
+
+# Agregar src/ al path para importar módulos
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.join(current_dir, 'src')
+sys.path.insert(0, src_dir)
+
+# Importaciones modulares actualizadas desde src/
+from monotributo_scraper import obtener_datos_monotributo_web
+from data_manager import cargar_datos_json_locales, guardar_datos_json_locales
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
@@ -28,13 +33,27 @@ class EstadoSesion(BaseModel):
 # BASE DE CONOCIMIENTO (KNOWLEDGE BASE) - SISTEMA EXPERTO MONOTRIBUTO
 # =====================================================================================
 
+# Base de conocimiento cargada dinámicamente desde rules.json
+knowledge_base = {}
+
 # Funciones auxiliares para evaluación de condiciones complejas
 def evaluar_precio_unitario_maximo(estado, respuesta, valor_numerico=None):
     """Evalúa si el precio unitario supera el límite de categoría A"""
     try:
-        precio_max = datos_categorias["venta"]["A"]["precio_unitario_maximo"]
-        return respuesta.startswith("SÍ")
-    except:
+        # Verificar que los datos estén cargados
+        if not datos_categorias:
+            return False
+        
+        # Acceder a los datos correctamente (manejar ambos formatos)
+        if "datos" in datos_categorias:
+            precio_max = datos_categorias["datos"]["venta"]["A"]["precio_unitario_maximo"]
+        else:
+            precio_max = datos_categorias["venta"]["A"]["precio_unitario_maximo"]
+        
+        # La respuesta debe comenzar con "SÍ" para indicar que supera el límite
+        resultado = respuesta.startswith("SÍ")
+        return resultado
+    except Exception as e:
         return False
 
 def evaluar_ingresos_limite(estado, respuesta, valor_numerico):
@@ -42,18 +61,61 @@ def evaluar_ingresos_limite(estado, respuesta, valor_numerico):
     if valor_numerico is None:
         return False
     
-    tipo_actividad = estado.get("tipo_actividad", "servicios")
-    if tipo_actividad == "venta":
-        categoria_maxima = estado.get("categoria_maxima", "K")
-        limite_maximo = datos_categorias[tipo_actividad][categoria_maxima]["ingresos"]
-    else:
-        limite_maximo = datos_categorias[tipo_actividad]["H"]["ingresos"]
-    
-    return valor_numerico > limite_maximo
+    try:
+        # Verificar que los datos estén cargados
+        if not datos_categorias:
+            return False
+        
+        # Acceder a los datos correctamente (manejar ambos formatos)
+        if "datos" in datos_categorias:
+            categorias_data = datos_categorias["datos"]
+        else:
+            categorias_data = datos_categorias
+            
+        tipo_actividad = estado.get("tipo_actividad", "servicios")
+        
+        if tipo_actividad == "venta":
+            categoria_maxima = estado.get("categoria_maxima", "K")
+            limite_maximo = categorias_data[tipo_actividad][categoria_maxima]["ingresos"]
+        else:
+            limite_maximo = categorias_data[tipo_actividad]["H"]["ingresos"]
+        
+        resultado = valor_numerico > limite_maximo
+        return resultado
+    except Exception as e:
+        return False
+
+def evaluar_ingresos_dentro_limite(estado, respuesta, valor_numerico):
+    """Evalúa si los ingresos están dentro del límite permitido"""
+    return not evaluar_ingresos_limite(estado, respuesta, valor_numerico)
 
 def evaluar_supera_parametro(estado, respuesta, parametro_tipo):
     """Evalúa si se supera un parámetro específico (superficie, energía, alquileres)"""
     return respuesta.startswith("SÍ")
+
+def evaluar_supera_parametro_superficie(estado, respuesta, valor_numerico=None):
+    """Evalúa si se supera el parámetro de superficie"""
+    return evaluar_supera_parametro(estado, respuesta, "superficie")
+
+def evaluar_no_supera_parametro_superficie(estado, respuesta, valor_numerico=None):
+    """Evalúa si NO se supera el parámetro de superficie"""
+    return not evaluar_supera_parametro(estado, respuesta, "superficie")
+
+def evaluar_supera_parametro_energia(estado, respuesta, valor_numerico=None):
+    """Evalúa si se supera el parámetro de energía"""
+    return evaluar_supera_parametro(estado, respuesta, "energia")
+
+def evaluar_no_supera_parametro_energia(estado, respuesta, valor_numerico=None):
+    """Evalúa si NO se supera el parámetro de energía"""
+    return not evaluar_supera_parametro(estado, respuesta, "energia")
+
+def evaluar_supera_parametro_alquileres(estado, respuesta, valor_numerico=None):
+    """Evalúa si se supera el parámetro de alquileres"""
+    return evaluar_supera_parametro(estado, respuesta, "alquileres")
+
+def evaluar_no_supera_parametro_alquileres(estado, respuesta, valor_numerico=None):
+    """Evalúa si NO se supera el parámetro de alquileres"""
+    return not evaluar_supera_parametro(estado, respuesta, "alquileres")
 
 # Funciones de post-acción para cálculos complejos
 def establecer_tipo_actividad(estado, respuesta):
@@ -67,8 +129,14 @@ def calcular_categoria_por_ingresos(estado, valor_numerico):
     """Calcula la categoría basada en los ingresos anuales"""
     tipo_actividad = estado["tipo_actividad"]
     
-    for categoria in sorted(datos_categorias[tipo_actividad].keys()):
-        if valor_numerico <= datos_categorias[tipo_actividad][categoria]["ingresos"]:
+    # Acceder a los datos correctamente (manejar ambos formatos)
+    if "datos" in datos_categorias:
+        categorias_data = datos_categorias["datos"]
+    else:
+        categorias_data = datos_categorias
+    
+    for categoria in sorted(categorias_data[tipo_actividad].keys()):
+        if valor_numerico <= categorias_data[tipo_actividad][categoria]["ingresos"]:
             if tipo_actividad == "venta" and estado.get("categoria_maxima"):
                 if categoria > estado["categoria_maxima"]:
                     categoria = estado["categoria_maxima"]
@@ -81,14 +149,21 @@ def avanzar_categoria_por_parametro(estado, parametro_tipo):
     """Avanza a la siguiente categoría cuando se supera un parámetro"""
     categoria_actual = estado["categoria_actual"]
     tipo_actividad = estado["tipo_actividad"]
-    categorias_ordenadas = sorted(datos_categorias[tipo_actividad].keys())
+    
+    # Acceder a los datos correctamente (manejar ambos formatos)
+    if "datos" in datos_categorias:
+        categorias_data = datos_categorias["datos"]
+    else:
+        categorias_data = datos_categorias
+    
+    categorias_ordenadas = sorted(categorias_data[tipo_actividad].keys())
     idx_actual = categorias_ordenadas.index(categoria_actual)
     
     if parametro_tipo == "alquileres":
         # Para alquileres, buscar categoría con valor diferente
-        valor_actual = datos_categorias[tipo_actividad][categoria_actual]["alquileres"]
+        valor_actual = categorias_data[tipo_actividad][categoria_actual]["alquileres"]
         for cat in categorias_ordenadas[idx_actual + 1:]:
-            if datos_categorias[tipo_actividad][cat]["alquileres"] > valor_actual:
+            if categorias_data[tipo_actividad][cat]["alquileres"] > valor_actual:
                 estado["categoria_actual"] = cat
                 return estado
     else:
@@ -106,25 +181,75 @@ def establecer_categoria_final(estado):
     estado["categoria_final"] = estado["categoria_actual"]
     return estado
 
-def calcular_pagos_finales(estado, en_relacion_dependencia):
+def establecer_categoria_inicial(estado, respuesta):
+    """Establece la categoría inicial A para emprendedores sin ingresos"""
+    estado["categoria_actual"] = "A"
+    estado["categoria_final"] = "A"
+    return estado
+
+def establecer_categoria_para_superficie(estado, respuesta):
+    """Establece la categoría actual para evaluar superficie cuando tiene local"""
+    # Si no hay categoría actual establecida, usar la categoría basada en ingresos
+    if "categoria_actual" not in estado:
+        # Si se calculó categoría por ingresos anteriormente, usar esa
+        if "categoria_final" in estado:
+            estado["categoria_actual"] = estado["categoria_final"]
+        else:
+            # Por defecto, usar categoría A si no hay otra información
+            estado["categoria_actual"] = "A"
+    
+    print(f"Estableciendo categoría para evaluación de superficie: {estado['categoria_actual']}")
+    return estado
+
+def avanzar_categoria_por_parametro_superficie(estado, respuesta):
+    """Avanza a la siguiente categoría cuando se supera el parámetro de superficie"""
+    return avanzar_categoria_por_parametro(estado, "superficie")
+
+def avanzar_categoria_por_parametro_energia(estado, respuesta):
+    """Avanza a la siguiente categoría cuando se supera el parámetro de energía"""
+    return avanzar_categoria_por_parametro(estado, "energia")
+
+def avanzar_categoria_por_parametro_alquileres(estado, respuesta):
+    """Avanza a la siguiente categoría cuando se supera el parámetro de alquileres"""
+    return avanzar_categoria_por_parametro(estado, "alquileres")
+
+def calcular_pagos_finales(estado, respuesta_dependencia):
     """Calcula los pagos finales basado en la categoría y relación de dependencia"""
     categoria_final = estado["categoria_final"]
     tipo_actividad = estado["tipo_actividad"]
     
+    # Convertir la respuesta del usuario a un booleano
+    # La respuesta es "SÍ" si contiene "SÍ" al inicio
+    respuesta_str = str(respuesta_dependencia).upper().strip()
+    en_relacion_dependencia = respuesta_str.startswith("SÍ")
+    
     try:
-        pagos_categoria = datos_pagos[tipo_actividad][categoria_final]
+        # Acceder a los datos correctamente (manejar formato con metadatos)
+        if "datos" in datos_pagos:
+            pagos_categoria = datos_pagos["datos"][tipo_actividad][categoria_final]
+        else:
+            pagos_categoria = datos_pagos[tipo_actividad][categoria_final]
         
         # Preparar estructura de pagos
-        pagos_nacionales = {"impuesto": pagos_categoria["solo_impuesto"]}
+        solo_impuesto = float(pagos_categoria["solo_impuesto"])
+        pago_completo = float(pagos_categoria["completo"])
+        
+        # Calcular SIPA y Obra Social como la diferencia
+        sipa_y_obra_social = pago_completo - solo_impuesto
+        # Aproximadamente SIPA es 60% y Obra Social 40% del total
+        sipa_valor = sipa_y_obra_social * 0.6
+        obra_social_valor = sipa_y_obra_social * 0.4
+        
+        pagos_nacionales = {"impuesto": f"{solo_impuesto:.2f}"}
         
         if en_relacion_dependencia:
             pagos_nacionales["sipa"] = "No aplica - Cubierto por tu empleo actual"
             pagos_nacionales["obra_social"] = "No aplica - Cubierto por tu empleo actual"
-            total_nacional = float(pagos_categoria["solo_impuesto"])
+            total_nacional = solo_impuesto
         else:
-            pagos_nacionales["sipa"] = pagos_categoria["sipa"]
-            pagos_nacionales["obra_social"] = pagos_categoria["obra_social"]
-            total_nacional = float(pagos_categoria["solo_impuesto"]) + float(pagos_categoria["sipa"]) + float(pagos_categoria["obra_social"])
+            pagos_nacionales["sipa"] = f"{sipa_valor:.2f}"
+            pagos_nacionales["obra_social"] = f"{obra_social_valor:.2f}"
+            total_nacional = pago_completo
         
         # Preparar pagos provinciales (AREF)
         pagos_provinciales = {}
@@ -150,354 +275,100 @@ def calcular_pagos_finales(estado, en_relacion_dependencia):
     
     return estado
 
-# BASE DE CONOCIMIENTO - REGLAS DEL SISTEMA EXPERTO
-knowledge_base = {
-    "persona_juridica_SI": {
-        "condition": {
-            "pregunta_id": "persona_juridica",
-            "respuesta": "SÍ"
-        },
-        "action": {
-            "tipo": "resultado",
-            "mensaje": """Régimen General (No calificás para el Monotributo)
-Según los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.
-
-Importante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).
-Para evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.
-
-Para más información, podés visitar:
-https://www.afip.gob.ar/landing/default.asp"""
-        }
-    },
-    
-    "persona_juridica_NO": {
-        "condition": {
-            "pregunta_id": "persona_juridica",
-            "respuesta": "NO (Persona Física)"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "socio_sociedad",
-                "texto": "¿Sos integrante o tenés participación en alguna sociedad o empresa registrada?",
-                "opciones": ["SÍ", "NO"],
-                "tipo": "opcion"
-            }
-        }
-    },
-    
-    "socio_sociedad_SI": {
-        "condition": {
-            "pregunta_id": "socio_sociedad",
-            "respuesta": "SÍ"
-        },
-        "action": {
-            "tipo": "resultado",
-            "mensaje": """Régimen General (No calificás para el Monotributo)
-Según los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.
-
-Importante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).
-Para evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.
-
-Para más información, podés visitar:
-https://www.afip.gob.ar/landing/default.asp"""
-        }
-    },
-    
-    "socio_sociedad_NO": {
-        "condition": {
-            "pregunta_id": "socio_sociedad",
-            "respuesta": "NO"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "actividades_diferentes",
-                "texto": "¿Vas a realizar más de 3 actividades económicas diferentes?",
-                "opciones": ["SÍ", "NO (3 o menos actividades)"],
-                "tipo": "opcion"
-            }
-        }
-    },
-    
-    "actividades_diferentes_SI": {
-        "condition": {
-            "pregunta_id": "actividades_diferentes",
-            "respuesta": "SÍ"
-        },
-        "action": {
-            "tipo": "resultado",
-            "mensaje": """Régimen General (No calificás para el Monotributo)
-Según los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.
-
-Importante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).
-Para evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.
-
-Para más información, podés visitar:
-https://www.afip.gob.ar/landing/default.asp"""
-        }
-    },
-    
-    "actividades_diferentes_NO": {
-        "condition": {
-            "pregunta_id": "actividades_diferentes",
-            "respuesta": "NO (3 o menos actividades)"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "actividad_servicios",
-                "texto": "¿Tu actividad principal es la prestación de servicios?",
-                "opciones": ["SÍ (Prestación de Servicios)", "NO (Venta de Cosas Muebles)"],
-                "tipo": "opcion"
-            }
-        }
-    },
-    
-    "actividad_servicios_SI": {
-        "condition": {
-            "pregunta_id": "actividad_servicios",
-            "respuesta": "SÍ (Prestación de Servicios)"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "genera_ingresos",
-                "texto": "¿Ya estás generando ingresos y podés estimar tu facturación anual?",
-                "opciones": ["SÍ", "NO"],
-                "tipo": "opcion"
-            }
-        },
-        "post_action_func": lambda estado, respuesta: establecer_tipo_actividad(estado, respuesta)
-    },
-    
-    "actividad_servicios_NO": {
-        "condition": {
-            "pregunta_id": "actividad_servicios",
-            "respuesta": "NO (Venta de Cosas Muebles)"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "precio_unitario",
-                "texto": "¿El precio unitario de los productos que vas a vender supera los $466,361.15?",
-                "opciones": ["SÍ (Supera el límite)", "NO (No supera el límite)"],
-                "tipo": "opcion"
-            }
-        },
-        "post_action_func": lambda estado, respuesta: establecer_tipo_actividad(estado, respuesta)
-    },
-    
-    "precio_unitario_excede": {
-        "condition": {
-            "pregunta_id": "precio_unitario",
-            "eval_func": evaluar_precio_unitario_maximo
-        },
-        "action": {
-            "tipo": "resultado",
-            "mensaje": """Régimen General (No calificás para el Monotributo)
-Según los datos que ingresaste, no cumplís con los requisitos para inscribirte en el régimen simplificado del Monotributo. Deberás tributar bajo el Régimen General.
-
-Importante: Este régimen implica el cumplimiento de obligaciones impositivas más complejas, con presentaciones mensuales y anuales ante ARCA (como IVA y Ganancias).
-Para evitar multas, intereses o sanciones por errores u omisiones, se recomienda contar con el acompañamiento de un profesional matriculado, como un contador o contadora de confianza.
-
-Para más información, podés visitar:
-https://www.afip.gob.ar/landing/default.asp"""
-        }
-    },
-    
-    "precio_unitario_acepta": {
-        "condition": {
-            "pregunta_id": "precio_unitario",
-            "respuesta": "NO (No supera el límite)"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "genera_ingresos",
-                "texto": "¿Ya estás generando ingresos y podés estimar tu facturación anual?",
-                "opciones": ["SÍ", "NO"],
-                "tipo": "opcion"
-            }
-        }
-    },
-    
-    "genera_ingresos_SI": {
-        "condition": {
-            "pregunta_id": "genera_ingresos",
-            "respuesta": "SÍ"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "ingresos_anuales",
-                "texto": "Ingresá tu proyección de ingresos brutos anuales (sin puntos ni comas, ejemplo: 10222333)",
-                "tipo": "numero"
-            }
-        }
-    },
-    
-    "genera_ingresos_NO": {
-        "condition": {
-            "pregunta_id": "genera_ingresos",
-            "respuesta": "NO"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "tiene_local",
-                "texto": "¿Tu actividad se desarrolla en un local o establecimiento físico (alquilado o propio)?",
-                "opciones": ["SÍ (Tiene local)", "NO (No tiene local)"],
-                "tipo": "opcion"
-            }
-        },
-        "post_action_func": lambda estado, respuesta: {**estado, "categoria_actual": "A", "categoria_final": "A"}
-    },
-    
-    "ingresos_exceden_limite": {
-        "condition": {
-            "pregunta_id": "ingresos_anuales",
-            "eval_func": evaluar_ingresos_limite
-        },
-        "action": {
-            "tipo": "resultado",
-            "mensaje": "Régimen General (Excede límite de ingresos)"
-        }
-    },
-    
-    "ingresos_dentro_limite": {
-        "condition": {
-            "pregunta_id": "ingresos_anuales",
-            "eval_func": lambda estado, respuesta, valor_numerico: not evaluar_ingresos_limite(estado, respuesta, valor_numerico)
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "tiene_local",
-                "texto": "¿Tu actividad se desarrolla en un local o establecimiento físico (alquilado o propio)?",
-                "opciones": ["SÍ (Tiene local)", "NO (No tiene local)"],
-                "tipo": "opcion"
-            }
-        },
-        "post_action_func": lambda estado, valor_numerico: calcular_categoria_por_ingresos(estado, valor_numerico)
-    },
-    
-    "tiene_local_NO": {
-        "condition": {
-            "pregunta_id": "tiene_local",
-            "respuesta": "NO (No tiene local)"
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "relacion_dependencia",
-                "texto": "¿Estás en relación de dependencia?",
-                "opciones": ["SÍ", "NO"],
-                "tipo": "opcion"
-            }
-        },
-        "post_action_func": lambda estado, respuesta: establecer_categoria_final(estado)
-    },
-    
-    "tiene_local_SI": {
-        "condition": {
-            "pregunta_id": "tiene_local",
-            "respuesta": "SÍ (Tiene local)"
-        },
-        "action": {
-            "tipo": "pregunta_superficie",  # Tipo especial para generar pregunta dinámica
-            "pregunta_base": "superficie"
-        }
-    },
-    
-    "supera_superficie": {
-        "condition": {
-            "pregunta_pattern": "superficie_cat_",
-            "eval_func": lambda estado, respuesta, valor_numerico: evaluar_supera_parametro(estado, respuesta, "superficie")
-        },
-        "action": {
-            "tipo": "avanzar_categoria",
-            "parametro": "superficie"
-        },
-        "post_action_func": lambda estado, respuesta: avanzar_categoria_por_parametro(estado, "superficie")
-    },
-    
-    "no_supera_superficie": {
-        "condition": {
-            "pregunta_pattern": "superficie_cat_",
-            "eval_func": lambda estado, respuesta, valor_numerico: not evaluar_supera_parametro(estado, respuesta, "superficie")
-        },
-        "action": {
-            "tipo": "pregunta_energia",  # Tipo especial para generar pregunta dinámica
-            "pregunta_base": "energia"
-        }
-    },
-    
-    "supera_energia": {
-        "condition": {
-            "pregunta_pattern": "energia_cat_",
-            "eval_func": lambda estado, respuesta, valor_numerico: evaluar_supera_parametro(estado, respuesta, "energia")
-        },
-        "action": {
-            "tipo": "avanzar_categoria",
-            "parametro": "energia"
-        },
-        "post_action_func": lambda estado, respuesta: avanzar_categoria_por_parametro(estado, "energia")
-    },
-    
-    "no_supera_energia": {
-        "condition": {
-            "pregunta_pattern": "energia_cat_",
-            "eval_func": lambda estado, respuesta, valor_numerico: not evaluar_supera_parametro(estado, respuesta, "energia")
-        },
-        "action": {
-            "tipo": "pregunta_alquileres",  # Tipo especial para generar pregunta dinámica
-            "pregunta_base": "alquileres"
-        }
-    },
-    
-    "supera_alquileres": {
-        "condition": {
-            "pregunta_pattern": "alquileres_cat_",
-            "eval_func": lambda estado, respuesta, valor_numerico: evaluar_supera_parametro(estado, respuesta, "alquileres")
-        },
-        "action": {
-            "tipo": "avanzar_categoria",
-            "parametro": "alquileres"
-        },
-        "post_action_func": lambda estado, respuesta: avanzar_categoria_por_parametro(estado, "alquileres")
-    },
-    
-    "no_supera_alquileres": {
-        "condition": {
-            "pregunta_pattern": "alquileres_cat_",
-            "eval_func": lambda estado, respuesta, valor_numerico: not evaluar_supera_parametro(estado, respuesta, "alquileres")
-        },
-        "action": {
-            "tipo": "pregunta",
-            "pregunta": {
-                "id": "relacion_dependencia",
-                "texto": "¿Estás en relación de dependencia?",
-                "opciones": ["SÍ", "NO"],
-                "tipo": "opcion"
-            }
-        },
-        "post_action_func": lambda estado, respuesta: establecer_categoria_final(estado)
-    },
-    
-    "relacion_dependencia_final": {
-        "condition": {
-            "pregunta_id": "relacion_dependencia"
-        },
-        "action": {
-            "tipo": "resultado_final"
-        },
-        "post_action_func": lambda estado, respuesta: calcular_pagos_finales(estado, respuesta == "SÍ")
-    }
+# Mapeo de nombres de funciones para carga dinámica
+FUNCTION_MAP = {
+    "evaluar_precio_unitario_maximo": evaluar_precio_unitario_maximo,
+    "evaluar_ingresos_limite": evaluar_ingresos_limite,
+    "evaluar_ingresos_dentro_limite": evaluar_ingresos_dentro_limite,
+    "evaluar_supera_parametro_superficie": evaluar_supera_parametro_superficie,
+    "evaluar_no_supera_parametro_superficie": evaluar_no_supera_parametro_superficie,
+    "evaluar_supera_parametro_energia": evaluar_supera_parametro_energia,
+    "evaluar_no_supera_parametro_energia": evaluar_no_supera_parametro_energia,
+    "evaluar_supera_parametro_alquileres": evaluar_supera_parametro_alquileres,
+    "evaluar_no_supera_parametro_alquileres": evaluar_no_supera_parametro_alquileres,
+    "establecer_tipo_actividad": establecer_tipo_actividad,
+    "calcular_categoria_por_ingresos": calcular_categoria_por_ingresos,
+    "avanzar_categoria_por_parametro": avanzar_categoria_por_parametro,
+    "establecer_categoria_final": establecer_categoria_final,
+    "establecer_categoria_inicial": establecer_categoria_inicial,
+    "establecer_categoria_para_superficie": establecer_categoria_para_superficie,
+    "avanzar_categoria_por_parametro_superficie": avanzar_categoria_por_parametro_superficie,
+    "avanzar_categoria_por_parametro_energia": avanzar_categoria_por_parametro_energia,
+    "avanzar_categoria_por_parametro_alquileres": avanzar_categoria_por_parametro_alquileres,
+    "calcular_pagos_finales": calcular_pagos_finales
 }
 
+def cargar_reglas_desde_json():
+    """Carga las reglas de la base de conocimiento desde el archivo rules.json"""
+    global knowledge_base
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    rules_path = os.path.join(current_dir, 'src', 'knowledge_base', 'rules.json')
+    
+    try:
+        with open(rules_path, 'r', encoding='utf-8') as f:
+            rules_data = json.load(f)
+        
+        # Procesar las reglas cargadas
+        for rule_name, rule_data in rules_data.items():
+            rule = {
+                "condition": rule_data["condition"],
+                "action": rule_data["action"],
+                "description": rule_data["description"],
+                "explanation": rule_data["explanation"]
+            }
+            
+            # Mapear funciones de evaluación si existen
+            if "eval_func" in rule_data["condition"]:
+                func_name = rule_data["condition"]["eval_func"]
+                if func_name in FUNCTION_MAP:
+                    rule["condition"]["eval_func"] = FUNCTION_MAP[func_name]
+                else:
+                    print(f"Advertencia: Función {func_name} no encontrada en FUNCTION_MAP")
+            
+            # Mapear funciones de post-acción si existen
+            if "post_action_func" in rule_data:
+                func_name = rule_data["post_action_func"]
+                if func_name in FUNCTION_MAP:
+                    rule["post_action_func"] = FUNCTION_MAP[func_name]
+                else:
+                    print(f"Advertencia: Función {func_name} no encontrada en FUNCTION_MAP")
+            
+            knowledge_base[rule_name] = rule
+        
+        print(f"Cargadas {len(knowledge_base)} reglas desde rules.json")
+        return True
+        
+    except Exception as e:
+        print(f"Error cargando reglas desde JSON: {e}")
+        return False
+
+def generar_explicacion_detallada(reglas_aplicadas):
+    """Genera explicaciones detalladas y legibles para las reglas aplicadas"""
+    explicaciones = []
+    
+    for rule_name in reglas_aplicadas:
+        if rule_name in knowledge_base:
+            rule = knowledge_base[rule_name]
+            explicacion = {
+                "regla": rule_name,
+                "descripcion": rule.get("description", "Regla del sistema"),
+                "explicacion": rule.get("explanation", "Esta regla se activó según las condiciones del sistema."),
+                "tipo": "activada"
+            }
+            explicaciones.append(explicacion)
+        else:
+            # Fallback para reglas que no están en el knowledge_base
+            explicaciones.append({
+                "regla": rule_name,
+                "descripcion": "Regla heredada del sistema",
+                "explicacion": f"Se aplicó la regla {rule_name} según la lógica del sistema experto.",
+                "tipo": "heredada"
+            })
+    
+    return explicaciones
+
 # =====================================================================================
-# FIN DE LA BASE DE CONOCIMIENTO
+# CARGA DINÁMICA Y GESTIÓN DE DATOS (HECHOS)
 # =====================================================================================
 
 # Almacenamiento en memoria de las sesiones
@@ -511,42 +382,64 @@ datos_aref = None
 def inicializar_datos():
     global datos_categorias, datos_pagos, datos_aref
     
-    # Cargar datos AREF
+    print("Inicializando sistema experto...")
+    
+    # 1. Cargar reglas de la base de conocimiento
+    if not cargar_reglas_desde_json():
+        print("Error crítico: No se pudieron cargar las reglas del sistema")
+        return False
+    
+    # 2. Cargar datos AREF (hechos provinciales)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     try:
         with open(os.path.join(current_dir, 'data', 'aref.json'), 'r') as f:
             datos_aref = json.load(f)
+        print("Datos AREF cargados correctamente")
     except Exception as e:
         print(f"Error al cargar aref.json: {e}")
         datos_aref = {}
     
-    # Intentar obtener datos actualizados de la web
+    # 3. Intentar obtener datos actualizados de la web (hechos nacionales)
+    print("Obteniendo datos actualizados de ARCA...")
     datos_web_cat, datos_web_pagos = obtener_datos_monotributo_web()
     
     if datos_web_cat and datos_web_pagos:
         datos_categorias = datos_web_cat
         datos_pagos = datos_web_pagos
         guardar_datos_json_locales(datos_categorias, datos_pagos)
+        print("Datos del Monotributo actualizados desde ARCA")
     else:
         # Si falla, intentar cargar datos locales
+        print("Fallo la conexión web, cargando datos locales...")
         datos_local_cat, datos_local_pagos = cargar_datos_json_locales()
         if datos_local_cat and datos_local_pagos:
             datos_categorias = datos_local_cat
             datos_pagos = datos_local_pagos
+            print("Datos locales del Monotributo cargados")
         else:
             datos_categorias = {"servicios": {}, "venta": {}}
             datos_pagos = {"servicios": {}, "venta": {}}
+            print("Usando datos por defecto")
     
-    # Actualizar la pregunta del precio unitario dinámicamente
+    # 4. Actualizar pregunta dinámica del precio unitario
     try:
         precio_max = datos_categorias["venta"]["A"]["precio_unitario_maximo"]
-        knowledge_base["actividad_servicios_NO"]["action"]["pregunta"]["texto"] = f"¿El precio unitario de los productos que vas a vender supera los ${precio_max:,.2f}?"
-        print(f"Pregunta de precio unitario actualizada con valor: ${precio_max:,.2f}")
+        # Actualizar la regla dinámicamente
+        if "actividad_servicios_NO" in knowledge_base:
+            knowledge_base["actividad_servicios_NO"]["action"]["pregunta"]["texto"] = f"¿El precio unitario de los productos que vas a vender supera los ${precio_max:,.2f}?"
+            print(f"Pregunta de precio unitario actualizada: ${precio_max:,.2f}")
     except Exception as e:
         print(f"Error actualizando pregunta de precio unitario: {e}")
+    
+    print("Sistema experto inicializado correctamente")
+    return True
 
 @app.on_event("startup")
 async def startup_event():
+    inicializar_datos()
+
+# Inicializar datos al importar el módulo
+if __name__ != "__main__":
     inicializar_datos()
 
 @app.post("/iniciar_sesion")
@@ -580,74 +473,126 @@ def evaluar_condicion(rule_name, rule, estado, respuesta, valor_numerico=None):
     """Evalúa si una regla se activa basada en su condición"""
     condition = rule["condition"]
     
+    print(f"  Condición: {condition}")
+    
     # Verificar coincidencia de pregunta_id
     if "pregunta_id" in condition:
         if respuesta.pregunta_id != condition["pregunta_id"]:
+            print(f"  Pregunta ID no coincide: {respuesta.pregunta_id} != {condition['pregunta_id']}")
             return False
+        print(f"  Pregunta ID coincide: {respuesta.pregunta_id}")
     
     # Verificar patrón de pregunta (para preguntas dinámicas)
     if "pregunta_pattern" in condition:
         if not respuesta.pregunta_id.startswith(condition["pregunta_pattern"]):
+            print(f"  Patrón no coincide: {respuesta.pregunta_id} no empieza con {condition['pregunta_pattern']}")
             return False
+        print(f"  Patrón coincide: {respuesta.pregunta_id}")
     
     # Verificar respuesta exacta
     if "respuesta" in condition:
         if respuesta.respuesta != condition["respuesta"]:
+            print(f"  Respuesta no coincide: '{respuesta.respuesta}' != '{condition['respuesta']}'")
             return False
+        print(f"  Respuesta coincide: '{respuesta.respuesta}'")
     
     # Evaluar función de evaluación personalizada
     if "eval_func" in condition:
         try:
-            return condition["eval_func"](estado, respuesta.respuesta, valor_numerico)
+            func = condition["eval_func"]
+            resultado = func(estado, respuesta.respuesta, valor_numerico)
+            return resultado
         except Exception as e:
-            print(f"Error evaluando función en regla {rule_name}: {e}")
             return False
     
+    print(f"  Condición cumplida (sin restricciones adicionales)")
     return True
 
 def generar_pregunta_dinamica(tipo_pregunta, categoria_actual, tipo_actividad):
     """Genera preguntas dinámicas basadas en la categoría actual"""
+    print(f"Generando pregunta dinámica:")
+    print(f"   - tipo_pregunta: {tipo_pregunta}")
+    print(f"   - categoria_actual: {categoria_actual}")
+    print(f"   - tipo_actividad: {tipo_actividad}")
+    print(f"   - datos_categorias disponible: {datos_categorias is not None}")
+    
     try:
-        limites = datos_categorias[tipo_actividad][categoria_actual]
+        # Acceder a los datos correctamente (manejar tanto formato directo como con metadatos)
+        if isinstance(datos_categorias, dict):
+            if "datos" in datos_categorias:
+                # Formato con metadatos (cuando se carga desde JSON)
+                limites = datos_categorias["datos"][tipo_actividad][categoria_actual]
+                print(f"   - Usando formato con metadatos")
+            else:
+                # Formato directo (cuando viene del scraper)
+                limites = datos_categorias[tipo_actividad][categoria_actual]
+                print(f"   - Usando formato directo")
+        else:
+            print("Error: datos_categorias no está inicializado correctamente")
+            return None
+        
+        print(f"   - Límites encontrados: {limites}")
         
         if tipo_pregunta == "superficie":
-            return {
+            pregunta = {
                 "id": f"superficie_cat_{categoria_actual}",
                 "texto": f"¿La superficie afectada de tu local supera los {limites['superficie']} m2?",
                 "opciones": ["SÍ (Supera el límite)", "NO (No supera el límite / Desconozco)"],
                 "tipo": "opcion",
                 "categoria_actual": categoria_actual
             }
+            print(f"Pregunta de superficie generada: {pregunta['texto']}")
+            return pregunta
         elif tipo_pregunta == "energia":
-            return {
+            pregunta = {
                 "id": f"energia_cat_{categoria_actual}",
                 "texto": f"¿El consumo de energía eléctrica supera los {limites['energia']} Kw?",
                 "opciones": ["SÍ (Supera el límite)", "NO (No supera el límite / Desconozco)"],
                 "tipo": "opcion",
                 "categoria_actual": categoria_actual
             }
+            print(f"Pregunta de energía generada: {pregunta['texto']}")
+            return pregunta
         elif tipo_pregunta == "alquileres":
-            return {
+            # Formatear el valor de alquileres como moneda
+            alquileres_formateado = f"${limites['alquileres']:,.0f}".replace(',', '.')
+            pregunta = {
                 "id": f"alquileres_cat_{categoria_actual}",
-                "texto": f"¿Los alquileres devengados superan los {limites['alquileres']}?",
+                "texto": f"¿Los alquileres devengados anuales superan los {alquileres_formateado}?",
                 "opciones": ["SÍ (Supera el límite)", "NO (No supera el límite / Desconozco)"],
                 "tipo": "opcion",
                 "categoria_actual": categoria_actual
             }
+            print(f"Pregunta de alquileres generada: {pregunta['texto']}")
+            return pregunta
     except Exception as e:
         print(f"Error generando pregunta dinámica: {e}")
+        print(f"   - tipo_pregunta: {tipo_pregunta}")
+        print(f"   - categoria_actual: {categoria_actual}")
+        print(f"   - tipo_actividad: {tipo_actividad}")
+        print(f"   - datos_categorias tipo: {type(datos_categorias)}")
+        if isinstance(datos_categorias, dict):
+            print(f"   - claves en datos_categorias: {list(datos_categorias.keys())}")
+        import traceback
+        traceback.print_exc()
         return None
 
 def ejecutar_accion(rule_name, action, estado, respuesta, valor_numerico=None):
     """Ejecuta la acción asociada a una regla activada"""
     tipo_accion = action["tipo"]
     
+    print(f"EJECUTANDO ACCIÓN:")
+    print(f"   Regla: {rule_name}")
+    print(f"   Tipo: {tipo_accion}")
+    print(f"   Estado actual: {estado}")
+    
     if tipo_accion == "resultado":
         return {
             "tipo": "resultado",
             "mensaje": action["mensaje"],
             "detalles": {
-                "razonamiento_aplicado": estado.get("applied_rules", [])
+                "razonamiento_aplicado": generar_explicacion_detallada(estado.get("applied_rules", [])),
+                "reglas_raw": estado.get("applied_rules", [])  # Para backward compatibility
             }
         }
     
@@ -660,13 +605,19 @@ def ejecutar_accion(rule_name, action, estado, respuesta, valor_numerico=None):
     elif tipo_accion == "pregunta_superficie":
         categoria_actual = estado.get("categoria_actual", "A")
         tipo_actividad = estado.get("tipo_actividad", "servicios")
+        print(f"   Generando pregunta de superficie:")
+        print(f"      categoria_actual: {categoria_actual}")
+        print(f"      tipo_actividad: {tipo_actividad}")
+        
         pregunta = generar_pregunta_dinamica("superficie", categoria_actual, tipo_actividad)
         if pregunta:
+            print(f"   Pregunta generada exitosamente")
             return {
                 "tipo": "pregunta",
                 "pregunta": pregunta
             }
         else:
+            print(f"   Error: No se pudo generar pregunta")
             return {
                 "tipo": "error",
                 "mensaje": "Error generando pregunta de superficie"
@@ -707,7 +658,11 @@ def ejecutar_accion(rule_name, action, estado, respuesta, valor_numerico=None):
         if estado.get("excede_parametros"):
             return {
                 "tipo": "resultado",
-                "mensaje": "Régimen General (Excede límites de parámetros)"
+                "mensaje": "Régimen General (Excede límites de parámetros)",
+                "detalles": {
+                    "razonamiento_aplicado": generar_explicacion_detallada(estado.get("applied_rules", [])),
+                    "reglas_raw": estado.get("applied_rules", [])
+                }
             }
         else:
             # Generar la siguiente pregunta del mismo tipo de parámetro
@@ -730,7 +685,11 @@ def ejecutar_accion(rule_name, action, estado, respuesta, valor_numerico=None):
             else:
                 return {
                     "tipo": "resultado",
-                    "mensaje": "Régimen General (Excede límites de parámetros)"
+                    "mensaje": "Régimen General (Excede límites de parámetros)",
+                    "detalles": {
+                        "razonamiento_aplicado": generar_explicacion_detallada(estado.get("applied_rules", [])),
+                        "reglas_raw": estado.get("applied_rules", [])
+                    }
                 }
     
     elif tipo_accion == "resultado_final":
@@ -738,7 +697,11 @@ def ejecutar_accion(rule_name, action, estado, respuesta, valor_numerico=None):
         if "error" in estado:
             return {
                 "tipo": "error",
-                "mensaje": estado["error"]
+                "mensaje": estado["error"],
+                "detalles": {
+                    "razonamiento_aplicado": generar_explicacion_detallada(estado.get("applied_rules", [])),
+                    "reglas_raw": estado.get("applied_rules", [])
+                }
             }
         elif "resultado_final" in estado:
             resultado = estado["resultado_final"]
@@ -747,13 +710,18 @@ def ejecutar_accion(rule_name, action, estado, respuesta, valor_numerico=None):
                 "mensaje": f"Te corresponde la Categoría {resultado['categoria']}",
                 "detalles": {
                     **resultado,
-                    "razonamiento_aplicado": estado.get("applied_rules", [])
+                    "razonamiento_aplicado": generar_explicacion_detallada(estado.get("applied_rules", [])),
+                    "reglas_raw": estado.get("applied_rules", [])
                 }
             }
         else:
             return {
                 "tipo": "error",
-                "mensaje": "Error al calcular el resultado final"
+                "mensaje": "Error al calcular el resultado final",
+                "detalles": {
+                    "razonamiento_aplicado": generar_explicacion_detallada(estado.get("applied_rules", [])),
+                    "reglas_raw": estado.get("applied_rules", [])
+                }
             }
     
     return None
@@ -771,24 +739,44 @@ async def procesar_respuesta(sesion_id: str, respuesta: RespuestaUsuario):
     print(f"\n=== MOTOR DE INFERENCIA ===")
     print(f"Procesando respuesta - ID: {respuesta.pregunta_id}")
     print(f"Respuesta: {respuesta.respuesta}")
-    print(f"Estado actual: {estado}")
+    if respuesta.valor_numerico:
+        print(f"Valor numérico: {respuesta.valor_numerico}")
     
     # Manejar pregunta dinámica para precio unitario
     if respuesta.pregunta_id == "precio_unitario":
         try:
-            precio_max = datos_categorias["venta"]["A"]["precio_unitario_maximo"]
+            # Acceder a los datos correctamente (manejar ambos formatos)
+            if "datos" in datos_categorias:
+                precio_max = datos_categorias["datos"]["venta"]["A"]["precio_unitario_maximo"]
+            else:
+                precio_max = datos_categorias["venta"]["A"]["precio_unitario_maximo"]
             # Actualizar la regla dinámicamente
             knowledge_base["actividad_servicios_NO"]["action"]["pregunta"]["texto"] = f"¿El precio unitario de los productos que vas a vender supera los ${precio_max:,.2f}?"
         except:
             pass
     
     # MOTOR DE INFERENCIA: Consultar la Base de Conocimiento
+    # Priorizar reglas de respuesta exacta sobre reglas con funciones de evaluación
+    reglas_ordenadas = []
+    reglas_con_funciones = []
+    
     for rule_name, rule in knowledge_base.items():
-        print(f"\nEvaluando regla: {rule_name}")
-        
+        if "eval_func" in rule["condition"]:
+            reglas_con_funciones.append((rule_name, rule))
+        else:
+            reglas_ordenadas.append((rule_name, rule))
+    
+    # Evaluar primero reglas exactas, luego reglas con funciones
+    reglas_ordenadas.extend(reglas_con_funciones)
+    
+    for rule_name, rule in reglas_ordenadas:
         # Evaluar si la regla se activa
         if evaluar_condicion(rule_name, rule, estado, respuesta, respuesta.valor_numerico):
-            print(f"✓ Regla {rule_name} activada")
+            
+            print(f"REGLA ACTIVADA: {rule_name}")
+            print(f"   Acción: {rule['action']['tipo']}")
+            if 'post_action_func' in rule:
+                print(f"   Post-action: {rule['post_action_func']}")
             
             # Registrar la regla aplicada para explicación
             estado["applied_rules"].append(rule_name)
@@ -796,29 +784,44 @@ async def procesar_respuesta(sesion_id: str, respuesta: RespuestaUsuario):
             # Ejecutar post_action_func si existe
             if "post_action_func" in rule:
                 try:
-                    if respuesta.valor_numerico is not None:
-                        estado = rule["post_action_func"](estado, respuesta.valor_numerico)
+                    func = rule["post_action_func"]
+                    # Si es un string, buscar la función en FUNCTION_MAP
+                    if isinstance(func, str):
+                        print(f"Ejecutando post_action_func (por nombre): {func}")
+                        func = FUNCTION_MAP.get(func)
                     else:
-                        estado = rule["post_action_func"](estado, respuesta.respuesta)
-                    print(f"Post-acción ejecutada para {rule_name}")
+                        print(f"Ejecutando post_action_func (función directa): {func}")
+                    
+                    if func and callable(func):
+                        if respuesta.valor_numerico is not None:
+                            estado = func(estado, respuesta.valor_numerico)
+                        else:
+                            estado = func(estado, respuesta.respuesta)
+                        print(f"Post-action ejecutada correctamente")
+                        print(f"   Estado actualizado: categoria_actual = {estado.get('categoria_actual', 'NO ESTABLECIDA')}")
+                    else:
+                        print(f"Función post_action no encontrada o no es callable: {rule['post_action_func']}")
+                        print(f"   Tipo: {type(rule['post_action_func'])}")
+                        if isinstance(rule['post_action_func'], str):
+                            print(f"   Funciones disponibles: {list(FUNCTION_MAP.keys())}")
                 except Exception as e:
-                    print(f"Error ejecutando post-acción en {rule_name}: {e}")
+                    print(f"Error ejecutando post_action: {e}")
+                    import traceback
+                    traceback.print_exc()
             
             # Ejecutar la acción principal
+            print(f"Ejecutando acción principal: {rule['action']['tipo']}")
             resultado = ejecutar_accion(rule_name, rule["action"], estado, respuesta, respuesta.valor_numerico)
             
             if resultado:
-                print(f"Resultado generado: {resultado['tipo']}")
-                print(f"Reglas aplicadas en esta sesión: {estado.get('applied_rules', [])}")
+                print(f"Acción ejecutada, retornando resultado")
                 return resultado
             else:
-                print(f"No se pudo generar resultado para regla {rule_name}")
-        else:
-            print(f"✗ Regla {rule_name} no activada")
+                print(f"Acción no retornó resultado")
     
     # Si ninguna regla se activó, es un error
-    print("ERROR: Ninguna regla se activó")
-    raise HTTPException(status_code=400, detail="Pregunta no reconocida o secuencia inválida")
+    print(f"Ninguna regla se activó para pregunta_id: {respuesta.pregunta_id}, respuesta: {respuesta.respuesta}")
+    raise HTTPException(status_code=400, detail=f"Pregunta no reconocida o secuencia inválida. ID: {respuesta.pregunta_id}, Respuesta: {respuesta.respuesta}")
 
 # =====================================================================================
 # FIN DEL MOTOR DE INFERENCIA
@@ -834,28 +837,46 @@ async def reiniciar_sesion(sesion_id: str):
 @app.get("/actualizar_datos")
 async def actualizar_datos():
     """Actualiza los datos del monotributo desde la web"""
-    inicializar_datos()
-    return {"mensaje": "Datos actualizados correctamente"}
+    if inicializar_datos():
+        return {"mensaje": "Datos actualizados correctamente", "reglas_cargadas": len(knowledge_base)}
+    else:
+        return {"error": "Error al actualizar los datos"}
+
+@app.get("/info_sistema")
+async def info_sistema():
+    """Proporciona información sobre el estado del sistema experto"""
+    return {
+        "reglas_cargadas": len(knowledge_base),
+        "reglas_disponibles": list(knowledge_base.keys()),
+        "datos_categorias_disponibles": bool(datos_categorias),
+        "datos_pagos_disponibles": bool(datos_pagos),
+        "datos_aref_disponibles": bool(datos_aref),
+        "sistema": "Sistema Experto Monotributo v2.0 - Modular"
+    }
 
 # Montar la carpeta static para archivos estáticos
 current_dir = os.path.dirname(os.path.abspath(__file__))
-app.mount("/static", StaticFiles(directory=os.path.join(current_dir, 'static')), name="static")
+frontend_static_dir = os.path.join(current_dir, 'frontend', 'static')
+frontend_templates_dir = os.path.join(current_dir, 'frontend', 'templates')
+
+app.mount("/static", StaticFiles(directory=frontend_static_dir), name="static")
 
 @app.get("/")
 def root():
-    return FileResponse(os.path.join(current_dir, 'templates', 'index.html'))
+    return FileResponse(os.path.join(frontend_templates_dir, 'index.html'))
 
-# Punto de entrada para ejecución directa - ACTUALIZACIÓN 6
+# Punto de entrada para ejecución directa - ACTUALIZACIÓN 7 MODULAR
 if __name__ == "__main__":
     import uvicorn
     import os
     
-    # Puerto dinámico para Render - ACTUALIZACIÓN 6
+    # Puerto dinámico para Render - ACTUALIZACIÓN 7
     port = int(os.environ.get("PORT", 8000))
     
-    print("🚀 SISTEMA EXPERTO EMPRENDEDOR FUEGUINO - ACTUALIZACIÓN 6")
-    print(f"📊 Puerto configurado: {port}")
-    print("✅ Optimizado para Render con PORT dinámico!")
-    print("🎯 Actualizando datos del sistema experto...")
+    print("SISTEMA EXPERTO EMPRENDEDOR FUEGUINO - ACTUALIZACIÓN 7 MODULAR")
+    print(f"Puerto configurado: {port}")
+    print("Arquitectura modular con reglas en JSON!")
+    print("Base de conocimiento separada y explicaciones mejoradas")
+    print("Iniciando sistema experto...")
     
     uvicorn.run(app, host="0.0.0.0", port=port)

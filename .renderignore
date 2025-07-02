@@ -1,4 +1,0 @@
-# Archivo para forzar rebuild en Render
-__pycache__/
-*.pyc
-.git/
